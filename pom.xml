@@ -20,7 +20,7 @@
 	<packaging>jar</packaging>
 
 	<name>Recon</name>
-	<description>Device monitoring across a network</description>
+	<description>Create and monitor network device maps</description>
 	<inceptionYear>2020</inceptionYear>
 
 	<repositories>
