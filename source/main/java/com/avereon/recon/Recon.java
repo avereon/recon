@@ -1,0 +1,35 @@
+package com.avereon.recon;
+
+import com.avereon.util.Log;
+import com.avereon.xenon.Mod;
+import com.avereon.xenon.ToolRegistration;
+
+public class Recon extends Mod {
+
+	private static final System.Logger log = Log.log();
+
+	private ReconAssetType reconAssetType;
+
+	@Override
+	public void register() {
+		//registerIcon( "recon", ArenaIcon.class );
+		registerAssetType( reconAssetType = new ReconAssetType( this ) );
+		registerTool( reconAssetType, new ToolRegistration( this, ReconTool.class ) );
+	}
+
+	@Override
+	public void startup() {
+	}
+
+	@Override
+	public void shutdown() {
+	}
+
+	@Override
+	public void unregister() {
+		unregisterTool( reconAssetType, ReconTool.class );
+		unregisterAssetType( reconAssetType );
+		//unregisterIcon( "recon", ReconIcon.class );
+	}
+
+}
