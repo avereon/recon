@@ -1,4 +1,4 @@
-module com.averon.recon {
+module com.avereon.recon {
 
 	requires com.avereon.xenon;
 	opens com.avereon.recon.bundles;
