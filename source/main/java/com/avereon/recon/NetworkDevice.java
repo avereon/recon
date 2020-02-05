@@ -1,10 +1,14 @@
 package com.avereon.recon;
 
 import com.avereon.data.Node;
+import com.avereon.util.Log;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class NetworkDevice extends Node {
+
+	private static final System.Logger log = Log.log();
 
 	private static final String ID = "id";
 
@@ -16,14 +20,23 @@ public class NetworkDevice extends Node {
 
 	private static final String IPV6 = "ipv6";
 
+	public static final String REQUEST = "request";
+
+	public static final String EXPECTED = "expected";
+
+	public static final String RESPONSE = "response";
+
 	public NetworkDevice() {
 		definePrimaryKey( ID );
 		defineNaturalKey( TYPE, NAME );
 		setId( UUID.randomUUID().toString() );
+		setRequest( DeviceRequest.RUNNING );
+		setExpected( DeviceResponse.OFF );
+		setResponse( DeviceResponse.UNKNOWN );
 	}
 
 	public String getId() {
-		return getValue(ID);
+		return getValue( ID );
 	}
 
 	public NetworkDevice setId( String id ) {
@@ -62,6 +75,33 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
+	public DeviceRequest getRequest() {
+		return getValue( REQUEST );
+	}
+
+	public NetworkDevice setRequest( DeviceRequest request ) {
+		setValue( REQUEST, request );
+		return this;
+	}
+
+	public DeviceResponse getExpected() {
+		return getValue( EXPECTED );
+	}
+
+	public NetworkDevice setExpected( DeviceResponse expected ) {
+		setValue( EXPECTED, expected );
+		return this;
+	}
+
+	public DeviceResponse getResponse() {
+		return getValue( RESPONSE );
+	}
+
+	public NetworkDevice setResponse( DeviceResponse response ) {
+		setValue( RESPONSE, response );
+		return this;
+	}
+
 	public NetworkDevice get( String id ) {
 		return getValue( id );
 	}
@@ -69,6 +109,20 @@ public class NetworkDevice extends Node {
 	public NetworkDevice add( NetworkDevice device ) {
 		setValue( device.getId(), device );
 		return this;
+	}
+
+	public void updateStatus() {
+		// TODO Do the network work here to determine the state of the device
+		log.log( Log.WARN, "Updating device status..." );
+		setResponse( DeviceResponse.ONLINE );
+	}
+
+	public void walk( Consumer<NetworkDevice> consumer ) {
+		consumer.accept( this );
+		getValueKeys().forEach( k -> {
+			Object value = getValue( k );
+			if( value instanceof NetworkDevice ) ((NetworkDevice)value).walk( consumer );
+		} );
 	}
 
 }

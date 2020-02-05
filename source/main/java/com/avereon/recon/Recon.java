@@ -15,6 +15,8 @@ public class Recon extends Mod {
 		registerIcon( "recon", ReconIcon.class );
 		registerAssetType( reconAssetType = new ReconAssetType( this ) );
 		registerTool( reconAssetType, new ToolRegistration( this, ReconTool.class ) );
+
+		registerAction( this.rb(), "runpause" );
 	}
 
 	@Override
@@ -27,6 +29,8 @@ public class Recon extends Mod {
 
 	@Override
 	public void unregister() {
+		unregisterAction( "runpause" );
+
 		unregisterTool( reconAssetType, ReconTool.class );
 		unregisterAssetType( reconAssetType );
 		unregisterIcon( "recon", ReconIcon.class );
