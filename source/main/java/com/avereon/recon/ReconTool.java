@@ -8,8 +8,8 @@ public class ReconTool extends ProgramTool {
 
 	public ReconTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+
+		setGraphic( product.getProgram().getIconLibrary().getIcon( "recon" ) );
 	}
-
-
 
 }
