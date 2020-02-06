@@ -25,15 +25,16 @@ public class NetworkGraph extends Node {
 			InetAddress ipv6Host = Inet6Address.getLocalHost();
 			InetAddress ipv4Host = Inet4Address.getLocalHost();
 			setRootDevice( new NetworkDevice()
-				.setName( ipv6Host.getHostName() )
+				.setName( "This Computer" )
 				.setHost( ipv6Host.getHostName() )
 				.setIpv6Address( ipv6Host.getHostAddress() )
-				.setIpv4Address( ipv4Host.getHostAddress() ) );
+				.setIpv4Address( ipv4Host.getHostAddress() )
+				.setExpected( DeviceResponse.ONLINE ) );
 		} catch( UnknownHostException e ) {
 			e.printStackTrace();
 		}
 
-		NetworkDevice soderquistNet = new NetworkDevice().setName("Soderquist Ventures").setHost( "soderquist.net" );
+		NetworkDevice soderquistNet = new NetworkDevice().setName( "Soderquist Ventures" ).setHost( "soderquist.net" ).setExpected( DeviceResponse.ONLINE );
 		getRootDevice().addDevice( soderquistNet );
 	}
 

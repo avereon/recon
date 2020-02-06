@@ -43,10 +43,10 @@ public class ReconTool extends ProgramTool {
 
 	static {
 		deviceResponsePaint = new HashMap<>();
-		deviceResponsePaint.put( DeviceResponse.UNKNOWN, Color.RED.darker() );
+		deviceResponsePaint.put( DeviceResponse.UNKNOWN, Color.GRAY );
 		deviceResponsePaint.put( DeviceResponse.OFFLINE, Color.RED );
 		deviceResponsePaint.put( DeviceResponse.ONLINE, Color.GREEN );
-		deviceResponsePaint.put( DeviceResponse.OFF, Color.GRAY );
+		deviceResponsePaint.put( DeviceResponse.OFF, Color.BLACK );
 	}
 
 	public ReconTool( ProgramProduct product, Asset asset ) {
@@ -66,7 +66,7 @@ public class ReconTool extends ProgramTool {
 		List<NetworkDevice> devices = List.of( getGraph().getRootDevice() );
 
 		while( devices.size() > 0 ) {
-			networkGraphView.getChildren().add(0, buildRow( level, devices ) );
+			networkGraphView.getChildren().add( 0, buildRow( level, devices ) );
 			devices = getDeviceList( devices );
 			level++;
 		}
@@ -88,6 +88,8 @@ public class ReconTool extends ProgramTool {
 	protected void activate() throws ToolException {
 		pushAction( "runpause", runPauseAction );
 		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( "runpause" );
+
+		Platform.runLater( () -> getProgram().getActionLibrary().getAction( "runpause" ).setState( updateTask == null ? "run" : "pause" ) );
 	}
 
 	@Override
@@ -110,7 +112,7 @@ public class ReconTool extends ProgramTool {
 
 	private void requestUpdates() {
 		TaskManager taskManager = getProgram().getTaskManager();
-		getGraph().getRootDevice().walk( e -> taskManager.submit( Task.of( e.getName(), () -> e.updateStatus( updateInterval ) ) ) );
+		getGraph().getRootDevice().walk( e -> taskManager.submit( Task.of( e.getName(), () -> e.updateStatus() ) ) );
 	}
 
 	private static class NetworkDeviceNode extends VBox {

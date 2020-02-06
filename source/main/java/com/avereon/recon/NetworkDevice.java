@@ -4,7 +4,7 @@ import com.avereon.data.Node;
 import com.avereon.util.Log;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.*;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -31,6 +31,10 @@ public class NetworkDevice extends Node {
 
 	public static final String RESPONSE = "response";
 
+	private long maxUpdateRate = 2500;
+
+	private long lastUpdateTime;
+
 	public NetworkDevice() {
 		definePrimaryKey( ID );
 		defineNaturalKey( TYPE, NAME );
@@ -39,10 +43,6 @@ public class NetworkDevice extends Node {
 		setExpected( DeviceResponse.OFF );
 		setResponse( DeviceResponse.UNKNOWN );
 	}
-
-	//	public NetworkDevice getParent(){
-	//		return (NetworkDevice)super.getParent();
-	//	}
 
 	public String getId() {
 		return getValue( ID );
@@ -129,13 +129,13 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
-	public void updateStatus( int timeout ) {
+	public void updateStatus() {
+		if( System.currentTimeMillis() - lastUpdateTime < maxUpdateRate ) return;
 		try {
 			InetAddress address = InetAddress.getByName( getHost() );
 			setIpv4Address( address.getHostAddress() );
 
-			log.log( Log.INFO, "Checking " + getName() + "..." );
-			if( address.isReachable( 4000 ) ) {
+			if( isReachable( 7, 22, 443 ) ) {
 				setResponse( DeviceResponse.ONLINE );
 			} else {
 				if( getExpected() == DeviceResponse.OFF ) {
@@ -144,9 +144,11 @@ public class NetworkDevice extends Node {
 					setResponse( DeviceResponse.OFFLINE );
 				}
 			}
-			log.log( Log.INFO, getName() + " is " + getResponse() + "!" );
 		} catch( IOException exception ) {
 			log.log( Log.WARN, exception );
+		} finally {
+			log.log( Log.INFO, getName() + " is " + getResponse() + "!" );
+			lastUpdateTime = System.currentTimeMillis();
 		}
 	}
 
@@ -157,6 +159,27 @@ public class NetworkDevice extends Node {
 	public void walk( Consumer<NetworkDevice> consumer ) {
 		consumer.accept( this );
 		getDevices().forEach( d -> d.walk( consumer ) );
+	}
+
+	private boolean isReachable( int... ports ) throws IOException {
+		int timeout = 200;
+		InetAddress address = InetAddress.getByName( getHost() );
+
+		try {
+			if( address.isReachable( timeout ) ) return true;
+		} catch( IOException exception ) {
+			if( ports.length == 0 ) throw exception;
+		}
+
+		for( int port : ports ) {
+			try( Socket socket = new Socket() ) {
+				socket.connect( new InetSocketAddress( address, port ), timeout );
+				return true;
+			} catch( SocketTimeoutException exception ) {
+				// Intentionally ignore exception
+			}
+		}
+		return false;
 	}
 
 }
