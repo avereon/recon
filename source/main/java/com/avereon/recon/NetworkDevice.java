@@ -3,6 +3,8 @@ package com.avereon.recon;
 import com.avereon.data.Node;
 import com.avereon.util.Log;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -33,6 +35,10 @@ public class NetworkDevice extends Node {
 		setRequest( DeviceRequest.RUNNING );
 		setExpected( DeviceResponse.OFF );
 		setResponse( DeviceResponse.UNKNOWN );
+	}
+
+	public NetworkDevice getParent(){
+		return getParent();
 	}
 
 	public String getId() {
@@ -102,19 +108,32 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
-	public NetworkDevice get( String id ) {
+	public NetworkDevice getDevice( String id ) {
 		return getValue( id );
 	}
 
-	public NetworkDevice add( NetworkDevice device ) {
+	public NetworkDevice addDevice( NetworkDevice device ) {
 		setValue( device.getId(), device );
 		return this;
 	}
 
-	public void updateStatus() {
-		// TODO Do the network work here to determine the state of the device
-		log.log( Log.WARN, "Updating device status..." );
-		setResponse( DeviceResponse.ONLINE );
+	public void updateStatus( int timeout ) {
+		try {
+			log.log( Log.INFO, "Checking " + getName() + "..." );
+			setResponse( DeviceResponse.ONLINE );
+			InetAddress address = InetAddress.getByName( getName() );
+			if( address.isReachable( timeout ) ) {
+				setResponse( DeviceResponse.ONLINE );
+			} else {
+				if( getExpected() == DeviceResponse.OFF ) {
+					setResponse( DeviceResponse.OFF );
+				} else {
+					setResponse( DeviceResponse.OFFLINE );
+				}
+			}
+		} catch( IOException exception ) {
+			log.log( Log.WARN, exception );
+		}
 	}
 
 	public void walk( Consumer<NetworkDevice> consumer ) {

@@ -31,6 +31,9 @@ public class NetworkGraph extends Node {
 		} catch( UnknownHostException e ) {
 			e.printStackTrace();
 		}
+
+		NetworkDevice soderquistNet = new NetworkDevice().setName( "soderquist.net" );
+		getRootDevice().addDevice( soderquistNet );
 	}
 
 	public String getId() {

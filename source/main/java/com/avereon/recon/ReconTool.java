@@ -16,6 +16,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -41,6 +42,8 @@ public class ReconTool extends ProgramTool {
 
 	private TimerTask updateTask;
 
+	private int updateInterval = 2000;
+
 	static {
 		deviceResponsePaint = new HashMap<>();
 		deviceResponsePaint.put( DeviceResponse.UNKNOWN, Color.RED.darker() );
@@ -60,7 +63,22 @@ public class ReconTool extends ProgramTool {
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) throws ToolException {
-		networkGraphView.getChildren().add( new NetworkDeviceNode( getGraph().getRootDevice() ) );
+		int level = 0;
+
+		HBox row = new HBox();
+		Map<NetworkDevice, HBox> groups = new HashMap<>( );
+		NetworkDevice device = getGraph().getRootDevice();
+		while( device != null ) {
+			NetworkDevice parent = device.getParent();
+			HBox group = parent == null ? new HBox() : groups.computeIfAbsent( device, d -> new HBox() );
+			group.getChildren().add( new NetworkDeviceNode( device ) );
+
+			row.getChildren().addAll( group );
+
+			networkGraphView.getChildren().add( row );
+		}
+
+		//networkGraphView.getChildren().add( new NetworkDeviceNode( getGraph().getRootDevice() ) );
 	}
 
 	@Override
@@ -90,10 +108,10 @@ public class ReconTool extends ProgramTool {
 
 	private void requestUpdates() {
 		TaskManager taskManager = getProgram().getTaskManager();
-		getGraph().getRootDevice().walk( e -> taskManager.submit( Task.of( e.getName(), e::updateStatus ) ) );
+		getGraph().getRootDevice().walk( e -> taskManager.submit( Task.of( e.getName(), () -> e.updateStatus( updateInterval ) ) ) );
 	}
 
-	private class NetworkDeviceNode extends VBox {
+	private static class NetworkDeviceNode extends VBox {
 
 		private NetworkDevice device;
 
@@ -152,7 +170,7 @@ public class ReconTool extends ProgramTool {
 					updateTask.cancel();
 					updateTask = null;
 				} else {
-					timer.schedule( updateTask = Lambda.timerTask( ReconTool.this::requestUpdates ), 0, 1000 );
+					timer.schedule( updateTask = Lambda.timerTask( ReconTool.this::requestUpdates ), 0, updateInterval );
 				}
 			}
 		}
