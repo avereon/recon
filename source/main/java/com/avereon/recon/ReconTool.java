@@ -13,7 +13,6 @@ import com.avereon.xenon.util.Lambda;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -23,10 +22,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReconTool extends ProgramTool {
 
@@ -42,7 +39,7 @@ public class ReconTool extends ProgramTool {
 
 	private TimerTask updateTask;
 
-	private int updateInterval = 2000;
+	private int updateInterval = 5000;
 
 	static {
 		deviceResponsePaint = new HashMap<>();
@@ -63,22 +60,28 @@ public class ReconTool extends ProgramTool {
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+		// Collect all the network devices
+
 		int level = 0;
+		List<NetworkDevice> devices = List.of( getGraph().getRootDevice() );
 
-		HBox row = new HBox();
-		Map<NetworkDevice, HBox> groups = new HashMap<>( );
-		NetworkDevice device = getGraph().getRootDevice();
-		while( device != null ) {
-			NetworkDevice parent = device.getParent();
-			HBox group = parent == null ? new HBox() : groups.computeIfAbsent( device, d -> new HBox() );
-			group.getChildren().add( new NetworkDeviceNode( device ) );
-
-			row.getChildren().addAll( group );
-
-			networkGraphView.getChildren().add( row );
+		while( devices.size() > 0 ) {
+			networkGraphView.getChildren().add(0, buildRow( level, devices ) );
+			devices = getDeviceList( devices );
+			level++;
 		}
 
-		//networkGraphView.getChildren().add( new NetworkDeviceNode( getGraph().getRootDevice() ) );
+	}
+
+	private List<NetworkDevice> getDeviceList( Collection<NetworkDevice> devices ) {
+		return devices.stream().flatMap( d -> d.getDevices().stream() ).collect( Collectors.toList() );
+	}
+
+	private HBox buildRow( int level, Collection<NetworkDevice> devices ) {
+		HBox row = new HBox();
+		row.setAlignment( Pos.CENTER );
+		row.getChildren().addAll( devices.stream().map( NetworkDeviceNode::new ).collect( Collectors.toList() ) );
+		return row;
 	}
 
 	@Override
@@ -101,7 +104,6 @@ public class ReconTool extends ProgramTool {
 
 		public NetworkGraphView() {
 			setAlignment( Pos.CENTER );
-			setNodeOrientation( NodeOrientation.RIGHT_TO_LEFT );
 		}
 
 	}
@@ -119,6 +121,8 @@ public class ReconTool extends ProgramTool {
 
 		private Label name;
 
+		private Label host;
+
 		private Label address;
 
 		public NetworkDeviceNode( NetworkDevice device ) {
@@ -126,10 +130,11 @@ public class ReconTool extends ProgramTool {
 
 			this.shape = new Circle( 30, Color.BLACK );
 			this.name = new Label( device.getName() );
+			this.host = new Label( device.getHost() );
 			this.address = new Label( device.getAddress() );
 
 			setAlignment( Pos.CENTER );
-			getChildren().addAll( shape, name, address );
+			getChildren().addAll( shape, name, host, address );
 
 			device.addNodeListener( e -> Platform.runLater( this::updateState ) );
 
@@ -144,6 +149,9 @@ public class ReconTool extends ProgramTool {
 			if( request == DeviceRequest.RUNNING ) paint = deviceResponsePaint.get( response );
 
 			shape.setFill( paint );
+			name.setText( getDevice().getName() );
+			host.setText( getDevice().getHost() );
+			address.setText( getDevice().getAddress() );
 		}
 
 		NetworkDevice getDevice() {

@@ -5,6 +5,7 @@ import com.avereon.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -17,6 +18,8 @@ public class NetworkDevice extends Node {
 	private static final String NAME = "name";
 
 	private static final String TYPE = "type";
+
+	private static final String HOST = "host";
 
 	private static final String IPV4 = "ipv4";
 
@@ -37,9 +40,9 @@ public class NetworkDevice extends Node {
 		setResponse( DeviceResponse.UNKNOWN );
 	}
 
-	public NetworkDevice getParent(){
-		return getParent();
-	}
+	//	public NetworkDevice getParent(){
+	//		return (NetworkDevice)super.getParent();
+	//	}
 
 	public String getId() {
 		return getValue( ID );
@@ -56,6 +59,15 @@ public class NetworkDevice extends Node {
 
 	public NetworkDevice setName( String name ) {
 		setValue( NAME, name );
+		return this;
+	}
+
+	public String getHost() {
+		return getValue( HOST );
+	}
+
+	public NetworkDevice setHost( String host ) {
+		setValue( HOST, host );
 		return this;
 	}
 
@@ -119,10 +131,11 @@ public class NetworkDevice extends Node {
 
 	public void updateStatus( int timeout ) {
 		try {
+			InetAddress address = InetAddress.getByName( getHost() );
+			setIpv4Address( address.getHostAddress() );
+
 			log.log( Log.INFO, "Checking " + getName() + "..." );
-			setResponse( DeviceResponse.ONLINE );
-			InetAddress address = InetAddress.getByName( getName() );
-			if( address.isReachable( timeout ) ) {
+			if( address.isReachable( 4000 ) ) {
 				setResponse( DeviceResponse.ONLINE );
 			} else {
 				if( getExpected() == DeviceResponse.OFF ) {
@@ -131,17 +144,19 @@ public class NetworkDevice extends Node {
 					setResponse( DeviceResponse.OFFLINE );
 				}
 			}
+			log.log( Log.INFO, getName() + " is " + getResponse() + "!" );
 		} catch( IOException exception ) {
 			log.log( Log.WARN, exception );
 		}
 	}
 
+	public Collection<NetworkDevice> getDevices() {
+		return getValues( NetworkDevice.class );
+	}
+
 	public void walk( Consumer<NetworkDevice> consumer ) {
 		consumer.accept( this );
-		getValueKeys().forEach( k -> {
-			Object value = getValue( k );
-			if( value instanceof NetworkDevice ) ((NetworkDevice)value).walk( consumer );
-		} );
+		getDevices().forEach( d -> d.walk( consumer ) );
 	}
 
 }

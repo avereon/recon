@@ -26,13 +26,14 @@ public class NetworkGraph extends Node {
 			InetAddress ipv4Host = Inet4Address.getLocalHost();
 			setRootDevice( new NetworkDevice()
 				.setName( ipv6Host.getHostName() )
+				.setHost( ipv6Host.getHostName() )
 				.setIpv6Address( ipv6Host.getHostAddress() )
 				.setIpv4Address( ipv4Host.getHostAddress() ) );
 		} catch( UnknownHostException e ) {
 			e.printStackTrace();
 		}
 
-		NetworkDevice soderquistNet = new NetworkDevice().setName( "soderquist.net" );
+		NetworkDevice soderquistNet = new NetworkDevice().setName("Soderquist Ventures").setHost( "soderquist.net" );
 		getRootDevice().addDevice( soderquistNet );
 	}
 
