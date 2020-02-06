@@ -132,8 +132,8 @@ public class NetworkDevice extends Node {
 	public void updateStatus() {
 		if( System.currentTimeMillis() - lastUpdateTime < maxUpdateRate ) return;
 		try {
-			InetAddress address = InetAddress.getByName( getHost() );
-			setIpv4Address( address.getHostAddress() );
+			setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
+			setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
 
 			if( isReachable( 7, 22, 443 ) ) {
 				setResponse( DeviceResponse.ONLINE );

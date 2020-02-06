@@ -2,10 +2,7 @@ package com.avereon.recon;
 
 import com.avereon.data.Node;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class NetworkGraph extends Node {
@@ -20,19 +17,10 @@ public class NetworkGraph extends Node {
 		definePrimaryKey( ID );
 		defineNaturalKey( NAME );
 		setId( UUID.randomUUID().toString() );
-
-		try {
-			InetAddress ipv6Host = Inet6Address.getLocalHost();
-			InetAddress ipv4Host = Inet4Address.getLocalHost();
-			setRootDevice( new NetworkDevice()
-				.setName( "This Computer" )
-				.setHost( ipv6Host.getHostName() )
-				.setIpv6Address( ipv6Host.getHostAddress() )
-				.setIpv4Address( ipv4Host.getHostAddress() )
-				.setExpected( DeviceResponse.ONLINE ) );
-		} catch( UnknownHostException e ) {
-			e.printStackTrace();
-		}
+		setRootDevice( new NetworkDevice()
+			.setName( "This Computer" )
+			.setHost( InetAddress.getLoopbackAddress().getHostName() )
+			.setExpected( DeviceResponse.ONLINE ) );
 
 		NetworkDevice soderquistNet = new NetworkDevice().setName( "Soderquist Ventures" ).setHost( "soderquist.net" ).setExpected( DeviceResponse.ONLINE );
 		getRootDevice().addDevice( soderquistNet );
