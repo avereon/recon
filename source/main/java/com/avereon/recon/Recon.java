@@ -20,12 +20,10 @@ public class Recon extends Mod {
 	}
 
 	@Override
-	public void startup() {
-	}
+	public void startup() {}
 
 	@Override
-	public void shutdown() {
-	}
+	public void shutdown() {}
 
 	@Override
 	public void unregister() {

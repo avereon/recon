@@ -7,7 +7,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 
-class NetworkDeviceNode extends VBox {
+class NetworkDeviceView extends VBox {
 
 	private NetworkDevice device;
 
@@ -19,8 +19,11 @@ class NetworkDeviceNode extends VBox {
 
 	private Label address;
 
-	public NetworkDeviceNode( NetworkDevice device ) {
+	public NetworkDeviceView( NetworkDevice device ) {
 		this.device = device;
+
+		setId( "network-device" );
+		getStyleClass().addAll( "network-device" );
 
 		this.shape = new Circle( 30, DeviceResponse.UNKNOWN.getPaint() );
 		this.name = new Label( device.getName() );
@@ -31,8 +34,10 @@ class NetworkDeviceNode extends VBox {
 		getChildren().addAll( shape, name, host, address );
 
 		device.addNodeListener( e -> Platform.runLater( this::updateState ) );
+	}
 
-		updateState();
+	NetworkDevice getDevice() {
+		return device;
 	}
 
 	private void updateState() {
@@ -40,10 +45,6 @@ class NetworkDeviceNode extends VBox {
 		name.setText( getDevice().getName() );
 		host.setText( getDevice().getHost() );
 		address.setText( getDevice().getAddress() );
-	}
-
-	NetworkDevice getDevice() {
-		return device;
 	}
 
 }
