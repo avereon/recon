@@ -31,7 +31,6 @@ public class ReconTool extends ProgramTool {
 	public ReconTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 
-		// TODO Stylesheets not working
 		getStylesheets().add( "recon.css" );
 
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "recon" ) );
