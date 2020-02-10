@@ -5,9 +5,19 @@ import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NetworkGraphCodec extends Codec {
 
@@ -17,7 +27,7 @@ public class NetworkGraphCodec extends Codec {
 
 	private Product product;
 
-	public NetworkGraphCodec( Product product) {
+	public NetworkGraphCodec( Product product ) {
 		this.product = product;
 		setDefaultExtension( "netgraph" );
 	}
@@ -44,34 +54,63 @@ public class NetworkGraphCodec extends Codec {
 
 	@Override
 	public void load( Asset asset, InputStream input ) throws IOException {
+		Map<String, NetworkDevice> devices = new HashMap<>();
+		Map<String, String> parents = new HashMap<>();
 
+		ObjectReader reader = new ObjectMapper().reader().forType( new TypeReference<Set<Map<String, String>>>() {} );
+		Set<Map<String, String>> maps = reader.readValue( new InputStreamReader( input, StandardCharsets.UTF_8 ) );
+
+		try {
+			maps.forEach( v -> {
+				String id = v.get( "id" );
+				String name = v.get( "name" );
+				String host = v.get( "host" );
+				String parent = v.get( "parent" );
+				devices.put( id, new NetworkDevice().setId( id ).setName( name ).setHost( host ) );
+				parents.put( id, parent );
+			} );
+
+			NetworkDevice root = null;
+
+			for( String id : parents.keySet() ) {
+				String parentId = parents.get( id );
+				NetworkDevice device = devices.get( id );
+				if( "null".equals( parentId ) ) {
+					root = device;
+				} else {
+					devices.get( parentId ).addDevice( device );
+				}
+			}
+
+			if( root != null ) ((NetworkGraph)asset.getModel()).setRootDevice( root );
+		} catch( Throwable throwable ) {
+			throw new IOException( "Error loading asset", throwable );
+		}
 	}
 
 	@Override
 	public void save( Asset asset, OutputStream output ) throws IOException {
-		PrintWriter writer = new PrintWriter( new OutputStreamWriter( output, StandardCharsets.UTF_8 ) );
-		try {
-			NetworkGraph graph = asset.getModel();
-			graph.getRootDevice().walk( d -> {
-				log.log( Log.WARN, "device.id=" + d.getId() );
+		NetworkGraph graph = asset.getModel();
+		NetworkDevice root = graph.getRootDevice();
 
-				Node p = d.getParent();
-				NetworkDevice parent = null;
-				if( p instanceof NetworkDevice ) parent = (NetworkDevice)p;
+		Stream<NetworkDevice> devices = Stream.concat( Stream.of( root ), Stream.of( root ).flatMap( d -> d.getDevices().stream() ) );
+		Set<Map<String, String>> deviceMaps = devices.map( d -> {
+			log.log( Log.WARN, "device.id=" + d.getId() );
 
-				writer.print( d.getId() );
-				writer.print( ", " );
-				writer.print( d.getName() );
-				writer.print( ", " );
-				writer.print( d.getHost() );
-				writer.print( ", " );
-				writer.print( parent == null ? "null" : parent.getId() );
-				writer.println();
-			} );
-		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, throwable );
-		}
-		writer.flush();
+			Node p = d.getParent();
+			NetworkDevice parent = null;
+			if( p instanceof NetworkDevice ) parent = (NetworkDevice)p;
+
+			Map<String, String> map = new HashMap<>();
+			map.put( "id", d.getId() );
+			map.put( "name", d.getName() );
+			map.put( "host", d.getHost() );
+			map.put( "parent", parent == null ? "null" : parent.getId() );
+			return map;
+		} ).collect( Collectors.toSet() );
+
+		ObjectWriter writer = new ObjectMapper().writer( new DefaultPrettyPrinter() );
+		writer.writeValue( new OutputStreamWriter( output, StandardCharsets.UTF_8 ), deviceMaps );
 	}
 
 }

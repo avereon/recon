@@ -21,9 +21,6 @@ public class NetworkGraph extends Node {
 			.setName( "This Computer" )
 			.setHost( InetAddress.getLoopbackAddress().getHostName() )
 			.setExpected( DeviceResponse.ONLINE ) );
-
-		NetworkDevice soderquistNet = new NetworkDevice().setName( "Soderquist Ventures" ).setHost( "soderquist.net" ).setExpected( DeviceResponse.ONLINE );
-		getRootDevice().addDevice( soderquistNet );
 	}
 
 	public String getId() {

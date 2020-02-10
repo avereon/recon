@@ -1,7 +1,9 @@
 package com.avereon.recon;
 
+import com.avereon.data.NodeEvent;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -28,15 +30,13 @@ class NetworkDeviceView extends VBox {
 
 		getStyleClass().addAll( "network-device" );
 
-		shape = new Circle( 30, DeviceResponse.UNKNOWN.getPaint() );
+		shape = new Circle( 20, DeviceResponse.UNKNOWN.getPaint() );
 
 		name = new TextField( device.getName() );
 		name.setAlignment( Pos.CENTER );
-		name.setEditable( false );
 
 		host = new TextField( device.getHost() );
 		host.setAlignment( Pos.CENTER );
-		host.setEditable( false );
 
 		address = new Label( device.getAddress() );
 		address.setAlignment( Pos.CENTER );
@@ -44,10 +44,18 @@ class NetworkDeviceView extends VBox {
 		setAlignment( Pos.CENTER );
 		getChildren().addAll( shape, name, host, address );
 
-		device.addNodeListener( e -> Platform.runLater( this::updateState ) );
+		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
 
-		new FieldInputHandler( name, () -> device.setName( name.getText() ) );
-		new FieldInputHandler( host, () -> device.setHost( host.getText() ) );
+		shape.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
+			if( e.getCode() == KeyCode.EQUALS ) {
+				// TODO Add a new child node
+			} else if( e.getCode() == KeyCode.MINUS ) {
+				// TODO Delete this device and all of its children
+			}
+		} );
+
+		new FieldInputHandler( shape, name, () -> device.setName( name.getText() ) );
+		new FieldInputHandler( shape, host, () -> device.setHost( host.getText() ) );
 	}
 
 	NetworkDevice getDevice() {
@@ -65,28 +73,32 @@ class NetworkDeviceView extends VBox {
 
 		private String priorValue;
 
-		public FieldInputHandler( TextField field, Runnable action ) {
+		private FieldInputHandler( Node node, TextField field, Runnable action ) {
 			field.addEventHandler( MouseEvent.MOUSE_CLICKED, e -> {
 				priorValue = field.getText();
-				field.setEditable( true );
 			} );
 			field.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 				if( e.getCode() == KeyCode.ESCAPE ) {
 					field.setText( priorValue );
-					field.setEditable( false );
+					blur( node );
 				}
 				if( e.getCode() == KeyCode.ENTER ) {
-					field.setEditable( false );
+					blur( node );
 					action.run();
 				}
 			} );
 			field.editableProperty().addListener( ( p, o, n ) -> {
 				if( !n ) {
-					field.setEditable( false );
+					blur( node );
 					action.run();
 				}
 			} );
 		}
+
+		private void blur( Node node ) {
+			node.requestFocus();
+		}
+
 	}
 
 }

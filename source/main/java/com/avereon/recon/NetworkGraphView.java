@@ -1,5 +1,6 @@
 package com.avereon.recon;
 
+import com.avereon.data.NodeEvent;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -17,15 +18,29 @@ class NetworkGraphView extends VBox {
 	}
 
 	public void setNetworkGraph( NetworkGraph graph ) {
+		if( this.graph == graph ) return;
 		this.graph = graph;
-		int level = 0;
-		List<NetworkDevice> devices = List.of( graph.getRootDevice() );
 
-		while( devices.size() > 0 ) {
-			getChildren().add( 0, buildRow( level, devices ) );
-			devices = getDeviceList( devices );
-			level++;
-		}
+		graph.register( NodeEvent.CHILD_ADDED, e -> {
+			// An entire sub-tree could have been added starting at the child
+		});
+
+//		graph.addNodeListener( e -> {
+//			switch( e.getEventType() ) {
+//				case NodeEvent.CHILD_ADDED : {
+//					break;
+//				}
+//			}
+//		} );
+
+//		int level = 0;
+//		getChildren().clear();
+//		List<NetworkDevice> devices = List.of( graph.getRootDevice() );
+//		while( devices.size() > 0 ) {
+//			getChildren().add( 0, buildRow( level, devices ) );
+//			devices = getDeviceList( devices );
+//			level++;
+//		}
 	}
 
 	private List<NetworkDevice> getDeviceList( Collection<NetworkDevice> devices ) {

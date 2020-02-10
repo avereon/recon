@@ -17,6 +17,6 @@
 	-fx-padding: 0;
 }
 
-.network-device > .text-field:editable {
+.network-device > .text-field:focused {
 	-fx-background-color: -ex-background-text;
 }

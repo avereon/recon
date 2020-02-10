@@ -45,6 +45,11 @@ public class ReconTool extends ProgramTool {
 		networkGraphView.setNetworkGraph( getGraph() );
 	}
 
+	@Override
+	protected void assetRefreshed() throws ToolException {
+		networkGraphView.setNetworkGraph( getGraph() );
+	}
+
 	synchronized void start() {
 		if( isRunning() ) return;
 		timer.schedule( updateTask = Lambda.timerTask( ReconTool.this::requestUpdates ), 0, updateInterval );
