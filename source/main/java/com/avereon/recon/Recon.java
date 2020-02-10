@@ -8,13 +8,13 @@ public class Recon extends Mod {
 
 	private static final System.Logger log = Log.log();
 
-	private ReconAssetType reconAssetType;
+	private NetworkGraphAssetType networkGraphAssetType;
 
 	@Override
 	public void register() {
 		registerIcon( "recon", ReconIcon.class );
-		registerAssetType( reconAssetType = new ReconAssetType( this ) );
-		registerTool( reconAssetType, new ToolRegistration( this, ReconTool.class ) );
+		registerAssetType( networkGraphAssetType = new NetworkGraphAssetType( this ) );
+		registerTool( networkGraphAssetType, new ToolRegistration( this, ReconTool.class ) );
 
 		registerAction( this.rb(), "runpause" );
 	}
@@ -29,8 +29,8 @@ public class Recon extends Mod {
 	public void unregister() {
 		unregisterAction( "runpause" );
 
-		unregisterTool( reconAssetType, ReconTool.class );
-		unregisterAssetType( reconAssetType );
+		unregisterTool( networkGraphAssetType, ReconTool.class );
+		unregisterAssetType( networkGraphAssetType );
 		unregisterIcon( "recon", ReconIcon.class );
 	}
 

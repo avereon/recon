@@ -5,12 +5,13 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 
-public class ReconAssetType extends AssetType {
+public class NetworkGraphAssetType extends AssetType {
 
-	private static final String MEDIA_TYPE = "application/vnd.avereon.recon.network.graph";
+	static final String MEDIA_TYPE = "application/vnd.avereon.recon.network.graph";
 
-	public ReconAssetType( Product product ) {
+	public NetworkGraphAssetType( Product product ) {
 		super( product, "recon" );
+		setDefaultCodec( new NetworkGraphCodec( product ) );
 	}
 
 	@Override
