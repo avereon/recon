@@ -124,9 +124,12 @@ public class NetworkDevice extends Node {
 		return getValue( id );
 	}
 
-	public NetworkDevice addDevice( NetworkDevice device ) {
+	public void addDevice( NetworkDevice device ) {
 		setValue( device.getId(), device );
-		return this;
+	}
+
+	public void removeDevice( NetworkDevice device ) {
+		setValue( device.getId(), null );
 	}
 
 	public void updateStatus() {

@@ -53,11 +53,10 @@ class NetworkDeviceView extends VBox {
 		shape.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> shape.requestFocus() );
 		shape.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 			if( e.getCode() == KeyCode.EQUALS ) {
-				log.log( Log.WARN, "EQUALS pressed..." );
 				getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown") );
 			} else if( e.getCode() == KeyCode.MINUS ) {
-				log.log( Log.WARN, "MINUS pressed..." );
-				// TODO Delete this device and all of its children
+				com.avereon.data.Node parent = getDevice().getParent();
+				if( parent != null && !(parent instanceof NetworkGraph ) ) ((NetworkDevice)parent).removeDevice( device );
 			}
 		} );
 
