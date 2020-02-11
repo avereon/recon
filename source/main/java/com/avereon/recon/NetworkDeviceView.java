@@ -1,6 +1,7 @@
 package com.avereon.recon;
 
 import com.avereon.data.NodeEvent;
+import com.avereon.util.Log;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -14,6 +15,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 
 class NetworkDeviceView extends VBox {
+
+	private static final System.Logger log = Log.log();
 
 	private NetworkDevice device;
 
@@ -46,10 +49,14 @@ class NetworkDeviceView extends VBox {
 
 		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
 
+		shape.setFocusTraversable( true );
+		shape.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> shape.requestFocus() );
 		shape.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 			if( e.getCode() == KeyCode.EQUALS ) {
-				// TODO Add a new child node
+				log.log( Log.WARN, "EQUALS pressed..." );
+				getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown") );
 			} else if( e.getCode() == KeyCode.MINUS ) {
+				log.log( Log.WARN, "MINUS pressed..." );
 				// TODO Delete this device and all of its children
 			}
 		} );
