@@ -13,6 +13,7 @@ import javafx.application.Platform;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class ReconTool extends ProgramTool {
 
@@ -26,12 +27,18 @@ public class ReconTool extends ProgramTool {
 
 	private TimerTask updateTask;
 
-	private int updateInterval = 5000;
+	private int updateInterval = 60000;
+
+	private int retryCount = 3;
+
+	private int retryInterval = 2;
+
+	private TimeUnit retryUnit = TimeUnit.SECONDS;
 
 	public ReconTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 
-		getStylesheets().add( product.getClassLoader().getResource(  "recon.css" ).toExternalForm() );
+		getStylesheets().add( product.getClassLoader().getResource( "recon.css" ).toExternalForm() );
 
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "recon" ) );
 
@@ -84,7 +91,7 @@ public class ReconTool extends ProgramTool {
 
 	private void requestUpdates() {
 		TaskManager taskManager = getProgram().getTaskManager();
-		getGraph().getRootDevice().walk( d -> taskManager.submit( Task.of( d.getName(), d::updateStatus ) ) );
+		getGraph().getRootDevice().walk( d -> taskManager.submit( Task.of( d.getName(), () -> d.updateStatus( retryCount, retryInterval, retryUnit ) ) ) );
 	}
 
 }

@@ -2,11 +2,13 @@ package com.avereon.recon;
 
 import com.avereon.data.Node;
 import com.avereon.util.Log;
+import com.avereon.util.ThreadUtil;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class NetworkDevice extends Node {
@@ -132,8 +134,17 @@ public class NetworkDevice extends Node {
 		setValue( device.getId(), null );
 	}
 
-	public void updateStatus() {
-		if( System.currentTimeMillis() - lastUpdateTime < maxUpdateRate ) return;
+	public void updateStatus( int retryCount, int retryDelay, TimeUnit retryUnit) {
+		int count = 0;
+		while( count < retryCount && !updateStatus() ) {
+			ThreadUtil.pause( retryDelay, retryUnit );
+			count++;
+		}
+	}
+
+	public boolean updateStatus() {
+		if( System.currentTimeMillis() - lastUpdateTime < maxUpdateRate ) return true;
+
 		try {
 			setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
 			setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
@@ -148,11 +159,14 @@ public class NetworkDevice extends Node {
 				}
 			}
 		} catch( IOException exception ) {
-			log.log( Log.WARN, exception );
+			log.log( Log.DEBUG, exception );
+			return false;
 		} finally {
-			log.log( Log.INFO, getName() + " is " + getResponse() + "!" );
+			//log.log( Log.INFO, getName() + " is " + getResponse() + "!" );
 			lastUpdateTime = System.currentTimeMillis();
 		}
+
+		return true;
 	}
 
 	public Collection<NetworkDevice> getDevices() {
