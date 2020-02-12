@@ -39,8 +39,9 @@ jobs:
 
       - name: Fetch CI/CD resources
         uses: actions/checkout@v2
-        repository: avereon/canoe
-        path: .github
+        with:
+          repository: avereon/canoe
+          path: .github
 
       - name: Configuration
         shell: bash
