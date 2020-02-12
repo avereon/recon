@@ -42,7 +42,7 @@ public class NetworkDevice extends Node {
 		defineNaturalKey( TYPE, NAME );
 		setId( UUID.randomUUID().toString() );
 		setRequest( DeviceRequest.RUNNING );
-		setExpected( DeviceResponse.OFF );
+		setExpected( DeviceResponse.ONLINE );
 		setResponse( DeviceResponse.UNKNOWN );
 	}
 
