@@ -14,10 +14,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class NetworkGraphCodec extends Codec {
 
@@ -93,10 +92,8 @@ public class NetworkGraphCodec extends Codec {
 		NetworkGraph graph = asset.getModel();
 		NetworkDevice root = graph.getRootDevice();
 
-		Stream<NetworkDevice> devices = Stream.concat( Stream.of( root ), Stream.of( root ).flatMap( d -> d.getDevices().stream() ) );
-		Set<Map<String, String>> deviceMaps = devices.map( d -> {
-			log.log( Log.WARN, "device.id=" + d.getId() );
-
+		Set<Map<String,String>> deviceMaps = new HashSet<>(  );
+		root.walk( d -> {
 			Node p = d.getParent();
 			NetworkDevice parent = null;
 			if( p instanceof NetworkDevice ) parent = (NetworkDevice)p;
@@ -106,8 +103,8 @@ public class NetworkGraphCodec extends Codec {
 			map.put( "name", d.getName() );
 			map.put( "host", d.getHost() );
 			map.put( "parent", parent == null ? "null" : parent.getId() );
-			return map;
-		} ).collect( Collectors.toSet() );
+			deviceMaps.add( map);
+		} );
 
 		ObjectWriter writer = new ObjectMapper().writer( new DefaultPrettyPrinter() );
 		writer.writeValue( new OutputStreamWriter( output, StandardCharsets.UTF_8 ), deviceMaps );
