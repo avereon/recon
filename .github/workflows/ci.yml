@@ -35,12 +35,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        repository: avereon/canoe
+        path: .github
 
       - name: Configuration
         shell: bash
         run: |
-          source .github/workflows/config.sh
+          source .github/config.sh
 
       # Required to render the product icon
       - name: Set up Virtual Display
