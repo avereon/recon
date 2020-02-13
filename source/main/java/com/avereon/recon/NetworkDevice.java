@@ -27,11 +27,13 @@ public class NetworkDevice extends Node {
 
 	private static final String IPV6 = "ipv6";
 
-	public static final String REQUEST = "request";
+	private static final String REQUEST = "request";
 
-	public static final String EXPECTED = "expected";
+	private static final String EXPECTED = "expected";
 
-	public static final String RESPONSE = "response";
+	private static final String RESPONSE = "response";
+
+	private static final String GROUP = "group";
 
 	private long maxUpdateRate = 2500;
 
@@ -44,6 +46,7 @@ public class NetworkDevice extends Node {
 		setRequest( DeviceRequest.RUNNING );
 		setExpected( DeviceResponse.ONLINE );
 		setResponse( DeviceResponse.UNKNOWN );
+		setGroup( NetworkDeviceGroup.DEFAULT );
 	}
 
 	public String getId() {
@@ -122,6 +125,25 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
+	public NetworkDeviceGroup getGroup() {
+		return getValue( GROUP );
+	}
+
+	public NetworkDevice setGroup( NetworkDeviceGroup group ) {
+		setValue( GROUP, group );
+		return this;
+	}
+
+	public int getLevel() {
+		int level = 0;
+		Node node = this;
+		while( !(node instanceof NetworkGraph) ) {
+			level++;
+			node = node.getParent();
+		}
+		return level;
+	}
+
 	public NetworkDevice getDevice( String id ) {
 		return getValue( id );
 	}
@@ -134,7 +156,7 @@ public class NetworkDevice extends Node {
 		setValue( device.getId(), null );
 	}
 
-	public void updateStatus( int retryCount, int retryDelay, TimeUnit retryUnit) {
+	public void updateStatus( int retryCount, int retryDelay, TimeUnit retryUnit ) {
 		int count = 0;
 		while( count < retryCount && !updateStatus() ) {
 			ThreadUtil.pause( retryDelay, retryUnit );

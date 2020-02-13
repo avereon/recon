@@ -10,12 +10,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 
-class NetworkDeviceView extends VBox {
+class NetworkDeviceView extends HBox {
 
 	private static final System.Logger log = Log.log();
 
@@ -47,37 +48,28 @@ class NetworkDeviceView extends VBox {
 		StackPane state = new StackPane( expected, currentState );
 
 		name = new TextField( device.getName() );
-		name.setAlignment( Pos.CENTER );
-		//name.setPrefWidth( EXPECTED_STATE_SIZE );
-
 		host = new TextField( device.getHost() );
-		host.setAlignment( Pos.CENTER );
-		//host.setPrefWidth( EXPECTED_STATE_SIZE );
-
 		address = new Label( device.getAddress() );
-		address.setAlignment( Pos.CENTER );
-		//address.setPrefWidth( EXPECTED_STATE_SIZE );
 
 		details = new VBox();
-		details.setAlignment( Pos.CENTER );
+		details.getStyleClass().add( "network-device-details" );
+		details.setAlignment( Pos.CENTER_LEFT );
 		details.getChildren().addAll( name, host, address );
-		//details.setVisible( false );
-		details.setManaged( false );
-		//details.requestLayout();
-
-		currentState.layoutBoundsProperty().addListener( ( p, o, n ) -> {
-			details.relocate( n.getMaxX(), n.getMaxY() );
-			details.resize( 300, 50 );
-		} );
+		details.setVisible( false );
 
 		setAlignment( Pos.CENTER );
 		getChildren().addAll( state, details );
 
 		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
 
-		currentState.setFocusTraversable( true );
-		currentState.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> currentState.requestFocus() );
-		currentState.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
+		currentState.setMouseTransparent( true );
+
+		expected.setFocusTraversable( true );
+		expected.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> {
+			details.setVisible( !details.isVisible() );
+			expected.requestFocus();
+		} );
+		expected.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 			if( e.getCode() == KeyCode.EQUALS ) {
 				getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
 			} else if( e.getCode() == KeyCode.MINUS ) {
@@ -86,14 +78,24 @@ class NetworkDeviceView extends VBox {
 			}
 		} );
 
-		new FieldInputHandler( currentState, name, () -> device.setName( name.getText() ) );
-		new FieldInputHandler( currentState, host, () -> device.setHost( host.getText() ) );
+		new FieldInputHandler( name, () -> device.setName( name.getText() ) );
+		new FieldInputHandler( host, () -> device.setHost( host.getText() ) );
 
 		updateState();
 	}
 
+	@Override
+	public void relocate( double x, double y ) {
+		super.relocate( x, y );
+		getDetails().relocate( getBoundsInParent().getMaxX(), getBoundsInParent().getCenterY() - getDetails().getBoundsInLocal().getCenterY() );
+	}
+
 	NetworkDevice getDevice() {
 		return device;
+	}
+
+	Node getDetails() {
+		return details;
 	}
 
 	private void updateState() {
@@ -102,37 +104,28 @@ class NetworkDeviceView extends VBox {
 		name.setText( getDevice().getName() );
 		host.setText( getDevice().getHost() );
 		address.setText( getDevice().getAddress() );
-		//details.setVisible( getDevice().getResponse() != DeviceResponse.UNKNOWN && getDevice().getExpected() != getDevice().getResponse() );
+		details.setVisible( details.isVisible() || ( getDevice().getResponse() != DeviceResponse.UNKNOWN && getDevice().getExpected() != getDevice().getResponse() ) );
 	}
 
-	private static class FieldInputHandler {
+	private class FieldInputHandler {
 
 		private String priorValue;
 
-		private FieldInputHandler( Node node, TextField field, Runnable action ) {
-			field.addEventHandler( MouseEvent.MOUSE_CLICKED, e -> {
-				priorValue = field.getText();
-			} );
+		private FieldInputHandler( TextField field, Runnable action ) {
 			field.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 				if( e.getCode() == KeyCode.ESCAPE ) {
 					field.setText( priorValue );
-					blur( node );
+					expected.requestFocus();
 				}
 				if( e.getCode() == KeyCode.ENTER ) {
 					action.run();
-					blur( node );
+					expected.requestFocus();
 				}
 			} );
-			field.focusedProperty().addListener( ( p, o, n ) -> {
-				if( !n ) {
-					action.run();
-					blur( node );
-				}
+			field.focusedProperty().addListener( ( p, o, newFocusedValue ) -> {
+				if( newFocusedValue ) priorValue = field.getText();
+				if( !newFocusedValue ) action.run();
 			} );
-		}
-
-		private void blur( Node node ) {
-			node.requestFocus();
 		}
 
 	}

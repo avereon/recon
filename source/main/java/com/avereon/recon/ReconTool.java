@@ -10,6 +10,7 @@ import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
+import javafx.scene.control.ScrollPane;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,6 +23,8 @@ public class ReconTool extends ProgramTool {
 	private static Timer timer = new Timer( true );
 
 	private NetworkGraphView networkGraphView;
+
+	private NetworkGraphTree networkGraphTree;
 
 	private RunPauseAction runPauseAction;
 
@@ -44,17 +47,26 @@ public class ReconTool extends ProgramTool {
 
 		runPauseAction = new RunPauseAction( this );
 
-		getChildren().addAll( networkGraphView = new NetworkGraphView() );
+		networkGraphView = new NetworkGraphView();
+		networkGraphTree = new NetworkGraphTree();
+
+		ScrollPane scroller = new ScrollPane( networkGraphTree );
+		scroller.setFitToWidth( true );
+		scroller.setFitToHeight( true );
+
+		getChildren().addAll( scroller );
 	}
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) throws ToolException {
-		networkGraphView.setNetworkGraph( getGraph() );
+		//networkGraphView.setNetworkGraph( getGraph() );
+		networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
 	@Override
 	protected void assetRefreshed() throws ToolException {
-		networkGraphView.setNetworkGraph( getGraph() );
+		//networkGraphView.setNetworkGraph( getGraph() );
+		networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
 	synchronized void start() {
