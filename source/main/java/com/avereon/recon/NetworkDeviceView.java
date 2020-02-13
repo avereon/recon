@@ -10,13 +10,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 
-class NetworkDeviceView extends HBox {
+class NetworkDeviceView extends VBox {
 
 	private static final System.Logger log = Log.log();
 
@@ -63,15 +62,15 @@ class NetworkDeviceView extends HBox {
 		details.setAlignment( Pos.CENTER );
 		details.getChildren().addAll( name, host, address );
 		//details.setVisible( false );
-		//details.setManaged( false );
+		details.setManaged( false );
 		//details.requestLayout();
-		//details.layoutXProperty().bindBidirectional( expected.layoutXProperty() );
 
 		currentState.layoutBoundsProperty().addListener( ( p, o, n ) -> {
 			details.relocate( n.getMaxX(), n.getMaxY() );
+			details.resize( 300, 50 );
 		} );
 
-		//setAlignment( Pos.CENTER );
+		setAlignment( Pos.CENTER );
 		getChildren().addAll( state, details );
 
 		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
