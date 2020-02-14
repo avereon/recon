@@ -26,9 +26,9 @@ class NetworkDeviceView extends HBox {
 
 	private NetworkDevice device;
 
-	private Shape expected;
-
 	private Shape currentState;
+
+	private Shape expected;
 
 	private VBox details;
 
@@ -56,6 +56,11 @@ class NetworkDeviceView extends HBox {
 		details.setAlignment( Pos.CENTER_LEFT );
 		details.getChildren().addAll( name, host, address );
 		details.setVisible( false );
+		details.setViewOrder( -1 );
+		details.setFocusTraversable( true );
+		details.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
+			if( e.getCode() == KeyCode.ESCAPE ) details.setVisible( false );
+		} );
 
 		setAlignment( Pos.CENTER );
 		getChildren().addAll( state, details );
@@ -66,13 +71,19 @@ class NetworkDeviceView extends HBox {
 
 		expected.setFocusTraversable( true );
 		expected.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> {
-			details.setVisible( !details.isVisible() );
-			expected.requestFocus();
+			if( e.getClickCount() >= 2 ) {
+				details.setVisible( !details.isVisible() );
+				if( details.isVisible() ) details.requestFocus();
+			} else {
+				expected.requestFocus();
+			}
 		} );
 		expected.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
+			log.log( Log.WARN, e.getCode() + " pressed" );
 			if( e.getCode() == KeyCode.EQUALS ) {
 				getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
 			} else if( e.getCode() == KeyCode.MINUS ) {
+				log.log( Log.WARN, e.getCode() + " pressed" );
 				com.avereon.data.Node parent = getDevice().getParent();
 				if( parent != null && !(parent instanceof NetworkGraph) ) ((NetworkDevice)parent).removeDevice( device );
 			}
@@ -99,12 +110,12 @@ class NetworkDeviceView extends HBox {
 	}
 
 	private void updateState() {
-		expected.setFill( getDevice().getExpected().getPaint() );
-		currentState.setFill( getDevice().getResponse().getPaint() );
+		details.setVisible( details.isVisible() || (getDevice().getResponse() != DeviceResponse.UNKNOWN && getDevice().getExpected() != getDevice().getResponse()) );
 		name.setText( getDevice().getName() );
 		host.setText( getDevice().getHost() );
 		address.setText( getDevice().getAddress() );
-		details.setVisible( details.isVisible() || ( getDevice().getResponse() != DeviceResponse.UNKNOWN && getDevice().getExpected() != getDevice().getResponse() ) );
+		expected.setFill( getDevice().getExpected().getPaint() );
+		currentState.setFill( getDevice().getResponse().getPaint() );
 	}
 
 	private class FieldInputHandler {
@@ -115,11 +126,13 @@ class NetworkDeviceView extends HBox {
 			field.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 				if( e.getCode() == KeyCode.ESCAPE ) {
 					field.setText( priorValue );
-					expected.requestFocus();
+					details.requestFocus();
+					e.consume();
 				}
 				if( e.getCode() == KeyCode.ENTER ) {
 					action.run();
-					expected.requestFocus();
+					details.requestFocus();
+					e.consume();
 				}
 			} );
 			field.focusedProperty().addListener( ( p, o, newFocusedValue ) -> {

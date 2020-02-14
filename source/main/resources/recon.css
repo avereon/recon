@@ -10,10 +10,16 @@
 	-fx-padding: 10;
 }
 
+.network-device:focused {
+	-fx-background-color: -ex-background-tags;
+}
+
+.network-device-details {
+	-fx-background-color: -ex-background-note;
+}
+
 .network-device-details .text-field {
 	-fx-background-color: transparent;
-	/*-fx-border-width: 0;*/
-	/*-fx-border-insets: 0;*/
 	-fx-padding: 0;
 }
 

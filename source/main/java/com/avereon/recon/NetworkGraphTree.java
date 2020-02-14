@@ -63,7 +63,7 @@ public class NetworkGraphTree extends Pane {
 
 		graph.getRootDevice().walk( this::registerDevice );
 		graph.register( NodeEvent.CHILD_ADDED, e -> registerDevice( (NetworkDevice)e.getNewValue() ) );
-		graph.register( NodeEvent.CHILD_REMOVED, e -> unregisterDevice( (NetworkDevice)e.getOldValue() ) );
+		graph.register( NodeEvent.CHILD_REMOVED, e -> unregisterDevice( (NetworkDevice)e.getNode(), (NetworkDevice)e.getOldValue() ) );
 
 		requestLayout();
 	}
@@ -87,9 +87,9 @@ public class NetworkGraphTree extends Pane {
 		} );
 	}
 
-	private void unregisterDevice( NetworkDevice device ) {
+	private void unregisterDevice( NetworkDevice parent, NetworkDevice device ) {
 		views.computeIfPresent( device, ( k, v ) -> {
-			Map<String, List<NetworkDevice>> level = levels.get( device.getLevel() );
+			Map<String, List<NetworkDevice>> level = levels.get( parent.getLevel() + 1 );
 			List<NetworkDevice> group = level.get( device.getGroup() );
 			group.remove( device );
 			getChildren().remove( v );

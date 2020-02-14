@@ -42,19 +42,16 @@ public class ReconTool extends ProgramTool {
 		super( product, asset );
 
 		getStylesheets().add( product.getClassLoader().getResource( "recon.css" ).toExternalForm() );
-
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "recon" ) );
 
 		runPauseAction = new RunPauseAction( this );
 
-		networkGraphView = new NetworkGraphView();
-		networkGraphTree = new NetworkGraphTree();
-
-		ScrollPane scroller = new ScrollPane( networkGraphTree );
-		scroller.setFitToWidth( true );
+		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
 		scroller.setFitToHeight( true );
+		scroller.setFitToWidth( true );
+		scroller.setFocusTraversable( true );
 
-		getChildren().addAll( scroller );
+		getChildren().addAll( networkGraphTree );
 	}
 
 	@Override
