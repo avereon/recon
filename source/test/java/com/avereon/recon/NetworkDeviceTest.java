@@ -14,6 +14,7 @@ public class NetworkDeviceTest {
 		assertThat( device.getName(), is( "device" ) );
 		assertThat( device.getIpv6Address(), is( "::" ) );
 		assertThat( device.getIpv4Address(), is( "0.0.0.0" ) );
+		assertThat( device.getGroup(), is( "default" ) );
 	}
 
 }

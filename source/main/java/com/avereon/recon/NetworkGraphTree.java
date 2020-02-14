@@ -18,11 +18,11 @@ public class NetworkGraphTree extends Pane {
 
 	private Map<NetworkDevice, NetworkDeviceView> views;
 
-	private List<Map<NetworkDeviceGroup, List<NetworkDevice>>> groups;
+	private List<Map<String, List<NetworkDevice>>> levels;
 
 	public NetworkGraphTree() {
 		views = new ConcurrentHashMap<>();
-		groups = new CopyOnWriteArrayList<>();
+		levels = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -33,15 +33,25 @@ public class NetworkGraphTree extends Pane {
 			if( child.isResizable() && child.isManaged() ) child.autosize();
 		}
 
-		// The root device
-		NetworkDeviceView view = views.get( graph.getRootDevice() );
-		if( view != null ) {
-			double x = getBoundsInLocal().getCenterX() - view.getBoundsInLocal().getCenterX();
-			double y = getBoundsInLocal().getCenterY() - view.getBoundsInLocal().getCenterY();
-			view.relocate( x, y );
-		}
+		double spaceX = 100;
+		double spaceY = 100;
+		int row = 0;
+		int column;
+		for( Map<String, List<NetworkDevice>> level : levels ) {
+			column = 0;
+			for( String key : level.keySet() ) {
+				for( NetworkDevice device : level.get( key ) ) {
+					NetworkDeviceView view = views.get( device );
+					if( view == null ) continue;
 
-		// NEXT Determine where to put the children
+					double x = column * spaceX;
+					double y = getHeight() - (row * spaceY);
+					view.relocate( x, y );
+					column++;
+				}
+			}
+			row++;
+		}
 	}
 
 	void setNetworkGraph( NetworkGraph graph ) {
@@ -54,6 +64,8 @@ public class NetworkGraphTree extends Pane {
 		graph.getRootDevice().walk( this::registerDevice );
 		graph.register( NodeEvent.CHILD_ADDED, e -> registerDevice( (NetworkDevice)e.getNewValue() ) );
 		graph.register( NodeEvent.CHILD_REMOVED, e -> unregisterDevice( (NetworkDevice)e.getOldValue() ) );
+
+		requestLayout();
 	}
 
 	private void registerDevice( NetworkDevice device ) {
@@ -62,18 +74,14 @@ public class NetworkGraphTree extends Pane {
 			getChildren().addAll( view, view.getDetails() );
 
 			int level = device.getLevel();
-			if( level >= groups.size() ) {
-				for( int index = groups.size(); index <= level; index++ ) {
-					groups.add( new ConcurrentHashMap<>() );
+			if( level >= levels.size() ) {
+				for( int index = levels.size(); index <= level; index++ ) {
+					levels.add( new ConcurrentHashMap<>() );
 				}
 			}
-			// NEXT Keep working on device groups and graph layout
-//			Map<NetworkDeviceGroup, List<NetworkDevice>> map = groups.get( level );
-//			map.computeIfAbsent( device.getGroup(), k -> {
-//				List<NetworkDevice> list = new CopyOnWriteArrayList<>();
-//				list.add( device );
-//				return list;
-//			} );
+			Map<String, List<NetworkDevice>> map = levels.get( level );
+			List<NetworkDevice> list = map.computeIfAbsent( device.getGroup(), k -> new CopyOnWriteArrayList<>() );
+			list.add( device );
 
 			return view;
 		} );
@@ -81,6 +89,9 @@ public class NetworkGraphTree extends Pane {
 
 	private void unregisterDevice( NetworkDevice device ) {
 		views.computeIfPresent( device, ( k, v ) -> {
+			Map<String, List<NetworkDevice>> level = levels.get( device.getLevel() );
+			List<NetworkDevice> group = level.get( device.getGroup() );
+			group.remove( device );
 			getChildren().remove( v );
 			return null;
 		} );

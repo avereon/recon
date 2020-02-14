@@ -43,10 +43,10 @@ public class NetworkDevice extends Node {
 		definePrimaryKey( ID );
 		defineNaturalKey( TYPE, NAME );
 		setId( UUID.randomUUID().toString() );
+		setGroup( "default" );
 		setRequest( DeviceRequest.RUNNING );
 		setExpected( DeviceResponse.ONLINE );
 		setResponse( DeviceResponse.UNKNOWN );
-		setGroup( NetworkDeviceGroup.DEFAULT );
 	}
 
 	public String getId() {
@@ -125,11 +125,11 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
-	public NetworkDeviceGroup getGroup() {
+	public String getGroup() {
 		return getValue( GROUP );
 	}
 
-	public NetworkDevice setGroup( NetworkDeviceGroup group ) {
+	public NetworkDevice setGroup( String group ) {
 		setValue( GROUP, group );
 		return this;
 	}
