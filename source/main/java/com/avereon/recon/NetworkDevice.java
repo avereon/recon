@@ -175,7 +175,19 @@ public class NetworkDevice extends Node {
 			setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
 			setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
 
-			if( isReachable( 7, 22, 443 ) ) {
+			boolean parentReachable = true;
+			if( !isRoot() ) {
+				NetworkDevice parent = getParent();
+				while( parentReachable ) {
+					parentReachable = parent.getResponse() == DeviceResponse.ONLINE;
+					if( parent.isRoot() ) break;
+					parent = getParent();
+				}
+			}
+
+			if( !isRoot() && !parentReachable ) {
+				setResponse( DeviceResponse.UNKNOWN );
+			} else if( isReachable( 7, 22, 443 ) ) {
 				setResponse( DeviceResponse.ONLINE );
 			} else {
 				if( getExpected() == DeviceResponse.OFF ) {

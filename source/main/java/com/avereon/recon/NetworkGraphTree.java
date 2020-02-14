@@ -85,10 +85,20 @@ public class NetworkGraphTree extends Pane {
 		views.clear();
 
 		graph.getRootDevice().walk( this::registerDevice );
-		graph.register( NodeEvent.CHILD_ADDED, e -> registerDevice( (NetworkDevice)e.getNewValue() ) );
-		graph.register( NodeEvent.CHILD_REMOVED, e -> unregisterDevice( (NetworkDevice)e.getNode(), (NetworkDevice)e.getOldValue() ) );
+		graph.register( NodeEvent.CHILD_ADDED, e -> addDevice( (NetworkDevice)e.getNewValue() ) );
+		// TODO if NodeEvent.REMOVING_CHILD is supported change the event handler
+		graph.register( NodeEvent.CHILD_REMOVED, e -> removeDevice( (NetworkDevice)e.getNode(), (NetworkDevice)e.getOldValue() ) );
 
 		requestLayout();
+	}
+
+	private void addDevice( NetworkDevice device ) {
+		registerDevice( device );
+		views.get( device ).getDetails().setVisible( true );
+	}
+
+	private void removeDevice( NetworkDevice parent, NetworkDevice device ) {
+		unregisterDevice( parent, device );
 	}
 
 	private void registerDevice( NetworkDevice device ) {
