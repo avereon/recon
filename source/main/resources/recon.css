@@ -1,13 +1,13 @@
 .network-device {
-	-fx-background-color: -ex-background-text;
-	-fx-background-insets: 15px;
+	/*-fx-background-color: -ex-background-text;*/
+	/*-fx-background-insets: 15px;*/
 
-	-fx-border-color: -ex-background-tabs;
-	-fx-border-style: solid;
-	-fx-border-insets: 10px;
-	-fx-border-width: 5px;
+	/*-fx-border-color: -ex-background-tabs;*/
+	/*-fx-border-style: solid;*/
+	/*-fx-border-insets: 10px;*/
+	/*-fx-border-width: 5px;*/
 
-	-fx-padding: 10;
+	-fx-padding: 5;
 }
 
 .network-device:focused {
@@ -16,6 +16,8 @@
 
 .network-device-details {
 	-fx-background-color: -ex-background-note;
+	-fx-background-radius: 1.5mm 1.5mm 1.5mm 1.5mm;
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
 }
 
 .network-device-details .text-field {

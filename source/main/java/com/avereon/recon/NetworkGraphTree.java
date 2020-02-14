@@ -15,6 +15,12 @@ public class NetworkGraphTree extends Pane {
 
 	private static final System.Logger log = Log.log();
 
+	private static final double DEVICE_HORIZONTAL_SPACING = 3 * NetworkDeviceView.EXPECTED_STATE_SIZE;
+
+	private static final double DEVICE_VERTICAL_SPACING = 5 * NetworkDeviceView.EXPECTED_STATE_SIZE;
+
+	private static final double GROUP_PADDING = NetworkDeviceView.EXPECTED_STATE_SIZE;
+
 	private NetworkGraph graph;
 
 	private Map<NetworkDevice, NetworkDeviceView> views;
@@ -34,25 +40,41 @@ public class NetworkGraphTree extends Pane {
 			if( child.isResizable() && child.isManaged() ) child.autosize();
 		}
 
-		double spaceX = 100;
-		double spaceY = 100;
-		int row = 0;
-		int column;
+		double nextX;
+		double nextY = 0.5 * DEVICE_VERTICAL_SPACING;
 		for( Map<String, List<NetworkDevice>> level : levels ) {
-			column = 0;
-			for( String key : level.keySet() ) {
-				for( NetworkDevice device : level.get( key ) ) {
+			// Levels
+			nextX = 0.5 * (getWidth() - getLevelWidth( level ));
+			for( String group : level.keySet() ) {
+				// Groups
+				nextX += GROUP_PADDING;
+				for( NetworkDevice device : level.get( group ) ) {
+					// Devices
 					NetworkDeviceView view = views.get( device );
 					if( view == null ) continue;
 
-					double x = column * spaceX;
-					double y = getHeight() - (row * spaceY);
-					view.relocate( x, y );
-					column++;
+					view.relocate( nextX, getHeight() - 0.5 * view.getHeight() - nextY );
+					nextX += DEVICE_HORIZONTAL_SPACING;
 				}
+				nextX += GROUP_PADDING;
 			}
-			row++;
+			nextY += DEVICE_VERTICAL_SPACING;
 		}
+	}
+
+	private double getLevelWidth( Map<String, List<NetworkDevice>> level ) {
+		double width = 0;
+		for( List<NetworkDevice> group : level.values() ) {
+			width += getGroupWidth( group );
+		}
+		return width;
+	}
+
+	private double getGroupWidth( List<NetworkDevice> group ) {
+		double width = GROUP_PADDING;
+		width += group.size() * DEVICE_HORIZONTAL_SPACING;
+		width += GROUP_PADDING;
+		return width;
 	}
 
 	void setNetworkGraph( NetworkGraph graph ) {

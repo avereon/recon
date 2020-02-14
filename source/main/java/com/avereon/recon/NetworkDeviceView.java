@@ -19,7 +19,7 @@ class NetworkDeviceView extends StackPane {
 
 	private static final System.Logger log = Log.log();
 
-	private static final double EXPECTED_STATE_SIZE = 25;
+	static final double EXPECTED_STATE_SIZE = 25;
 
 	private static final double STATE_SIZE = 20;
 

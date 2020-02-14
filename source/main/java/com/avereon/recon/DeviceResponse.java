@@ -6,7 +6,7 @@ import javafx.scene.paint.Paint;
 public enum DeviceResponse {
 
 	UNKNOWN( Color.GRAY ),
-	OFFLINE( Color.YELLOW ),
+	OFFLINE( Color.web("#C0C000") ),
 	ONLINE( Color.GREEN ),
 	OFF( Color.BLACK );
 

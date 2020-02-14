@@ -140,7 +140,7 @@ public class NetworkDevice extends Node {
 
 	public int getLevel() {
 		int level = 0;
-		Node node = this;
+		Node node = getParent();
 		while( !(node instanceof NetworkGraph) ) {
 			level++;
 			node = node.getParent();
