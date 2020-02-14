@@ -10,13 +10,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 
-class NetworkDeviceView extends HBox {
+class NetworkDeviceView extends StackPane {
 
 	private static final System.Logger log = Log.log();
 
@@ -45,7 +44,6 @@ class NetworkDeviceView extends HBox {
 
 		currentState = new Circle( STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
 		expected = new Circle( EXPECTED_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
-		StackPane state = new StackPane( expected, currentState );
 
 		name = new TextField( device.getName() );
 		host = new TextField( device.getHost() );
@@ -63,7 +61,7 @@ class NetworkDeviceView extends HBox {
 		} );
 
 		setAlignment( Pos.CENTER );
-		getChildren().addAll( state, details );
+		getChildren().addAll( expected, currentState );
 
 		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
 
@@ -79,11 +77,10 @@ class NetworkDeviceView extends HBox {
 			}
 		} );
 		expected.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
-			log.log( Log.WARN, e.getCode() + " pressed" );
+			//log.log( Log.WARN, e.getCode() + " pressed" );
 			if( e.getCode() == KeyCode.EQUALS ) {
 				getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
 			} else if( e.getCode() == KeyCode.MINUS ) {
-				log.log( Log.WARN, e.getCode() + " pressed" );
 				com.avereon.data.Node parent = getDevice().getParent();
 				if( parent != null && !(parent instanceof NetworkGraph) ) ((NetworkDevice)parent).removeDevice( device );
 			}

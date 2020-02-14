@@ -5,10 +5,10 @@ import javafx.scene.paint.Paint;
 
 public enum DeviceResponse {
 
-	UNKNOWN( Color.GRAY),
-	OFFLINE(Color.RED),
-	ONLINE(Color.GREEN),
-	OFF(Color.BLACK);
+	UNKNOWN( Color.GRAY ),
+	OFFLINE( Color.YELLOW ),
+	ONLINE( Color.GREEN ),
+	OFF( Color.BLACK );
 
 	private Paint paint;
 

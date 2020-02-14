@@ -4,6 +4,7 @@ import com.avereon.data.NodeEvent;
 import com.avereon.util.Log;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 
 import java.util.List;
 import java.util.Map;
@@ -83,6 +84,21 @@ public class NetworkGraphTree extends Pane {
 			List<NetworkDevice> list = map.computeIfAbsent( device.getGroup(), k -> new CopyOnWriteArrayList<>() );
 			list.add( device );
 
+			// Add a line from this device to the parent
+			if( !device.isRoot() ) {
+				NetworkDeviceView parentView = views.get( device.getParent() );
+
+				Line line = new Line();
+				line.setViewOrder( 1 );
+				line.startXProperty().bind( view.layoutXProperty().add( view.widthProperty().multiply( 0.5 ) ) );
+				line.startYProperty().bind( view.layoutYProperty().add( view.heightProperty().multiply( 0.5 ) ) );
+				line.endXProperty().bind( parentView.layoutXProperty().add( parentView.widthProperty().multiply( 0.5 ) ) );
+				line.endYProperty().bind( parentView.layoutYProperty().add( parentView.heightProperty().multiply( 0.5 ) ) );
+				getChildren().add( line );
+
+				device.putResource( NetworkDevice.CONNECTOR, line );
+			}
+
 			return view;
 		} );
 	}
@@ -90,9 +106,9 @@ public class NetworkGraphTree extends Pane {
 	private void unregisterDevice( NetworkDevice parent, NetworkDevice device ) {
 		views.computeIfPresent( device, ( k, v ) -> {
 			Map<String, List<NetworkDevice>> level = levels.get( parent.getLevel() + 1 );
-			List<NetworkDevice> group = level.get( device.getGroup() );
-			group.remove( device );
-			getChildren().remove( v );
+			level.get( device.getGroup() ).remove( device );
+
+			getChildren().removeAll( v, v.getDetails(), device.getResource( NetworkDevice.CONNECTOR ) );
 			return null;
 		} );
 	}

@@ -15,6 +15,8 @@ public class NetworkDevice extends Node {
 
 	private static final System.Logger log = Log.log();
 
+	static final String CONNECTOR = "connector";
+
 	private static final String ID = "id";
 
 	private static final String NAME = "name";
@@ -34,6 +36,8 @@ public class NetworkDevice extends Node {
 	private static final String RESPONSE = "response";
 
 	private static final String GROUP = "group";
+
+	private static final String ROOT = "root";
 
 	private long maxUpdateRate = 2500;
 
@@ -195,6 +199,22 @@ public class NetworkDevice extends Node {
 		return getValues( NetworkDevice.class );
 	}
 
+	public boolean isRoot() {
+		Boolean isRoot = getResource( ROOT );
+		if( isRoot != null ) return isRoot;
+
+		Node parent = getParent();
+		isRoot = parent instanceof NetworkGraph;
+		putResource( ROOT, isRoot );
+		return isRoot;
+	}
+
+	/**
+	 * Walk the network device tree starting with this device. This device is
+	 * processed by the consumer before child devices are processed.
+	 *
+	 * @param consumer The consumer to process each device
+	 */
 	public void walk( Consumer<NetworkDevice> consumer ) {
 		consumer.accept( this );
 		getDevices().forEach( d -> d.walk( consumer ) );

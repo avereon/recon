@@ -46,10 +46,10 @@ public class ReconTool extends ProgramTool {
 
 		runPauseAction = new RunPauseAction( this );
 
+		// NOTE Adding the scroller really messes with the focus handling and key events
 		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
 		scroller.setFitToHeight( true );
 		scroller.setFitToWidth( true );
-		scroller.setFocusTraversable( true );
 
 		getChildren().addAll( networkGraphTree );
 	}
