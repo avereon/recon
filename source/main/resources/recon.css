@@ -28,3 +28,11 @@
 .network-device-details .text-field:focused {
 	-fx-background-color: -ex-background-text;
 }
+
+.network-group-view {
+	-fx-background-color: -ex-background-text;
+}
+
+.network-device-connector {
+	-fx-stroke: gray;
+}

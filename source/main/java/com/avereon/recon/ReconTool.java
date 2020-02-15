@@ -1,6 +1,7 @@
 package com.avereon.recon;
 
 import com.avereon.util.Log;
+import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -12,9 +13,12 @@ import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReconTool extends ProgramTool {
 
@@ -30,7 +34,7 @@ public class ReconTool extends ProgramTool {
 
 	private TimerTask updateTask;
 
-	private int updateInterval = 60000;
+	private int updateInterval = 20000;
 
 	private int retryCount = 3;
 
@@ -98,9 +102,40 @@ public class ReconTool extends ProgramTool {
 		return getAsset().getModel();
 	}
 
+	private int getLevelCount() {
+		final AtomicInteger level = new AtomicInteger( 0 );
+		getGraph().getRootDevice().walk( d -> {
+			int deviceLevel = d.getLevel();
+			if( deviceLevel > level.get() ) level.set( deviceLevel );
+		} );
+		return level.get();
+	}
+
+	private Set<NetworkDevice> getDevicesInLevel( int level ) {
+		Set<NetworkDevice> devices = new HashSet<>();
+		getGraph().getRootDevice().walk( d -> {
+			if( d.getLevel() == level ) devices.add( d );
+		} );
+		return devices;
+	}
+
 	private void requestUpdates() {
-		TaskManager taskManager = getProgram().getTaskManager();
-		getGraph().getRootDevice().walk( d -> taskManager.submit( Task.of( d.getName(), () -> d.updateStatus( retryCount, retryInterval, retryUnit ) ) ) );
+		String label = getProduct().rb().text( BundleKey.LABEL, "update-network-device-status" );
+		int count = getLevelCount();
+		TaskManager manager = getProgram().getTaskManager();
+		for( int level = 0; level <= count; level++ ) {
+			Set<NetworkDevice> devices = getDevicesInLevel( level );
+			Set<Task<?>> tasks = new HashSet<>();
+			devices.forEach( d -> tasks.add( manager.submit( Task.of( label, () -> d.updateStatus( retryCount, retryInterval, retryUnit ) ) ) ) );
+			tasks.forEach( t -> {
+				try {
+					t.get();
+				} catch( Exception exception ) {
+					log.log( Log.ERROR, exception );
+				}
+			} );
+		}
+
 	}
 
 }

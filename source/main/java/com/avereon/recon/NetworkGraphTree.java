@@ -4,8 +4,12 @@ import com.avereon.data.NodeEvent;
 import com.avereon.util.Log;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Line;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.CubicCurve;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,15 +25,20 @@ public class NetworkGraphTree extends Pane {
 
 	private static final double GROUP_PADDING = NetworkDeviceView.EXPECTED_STATE_SIZE;
 
-	private NetworkGraph graph;
+	private static final Paint CONNECTOR_PAINT = Color.GRAY;
 
-	private Map<NetworkDevice, NetworkDeviceView> views;
+	private NetworkGraph graph;
 
 	private List<Map<String, List<NetworkDevice>>> levels;
 
+	private Map<String, Pane> groupViews;
+
+	private Map<NetworkDevice, NetworkDeviceView> views;
+
 	public NetworkGraphTree() {
-		views = new ConcurrentHashMap<>();
 		levels = new CopyOnWriteArrayList<>();
+		groupViews = new ConcurrentHashMap<>();
+		views = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -40,25 +49,52 @@ public class NetworkGraphTree extends Pane {
 			if( child.isResizable() && child.isManaged() ) child.autosize();
 		}
 
+		int level = 0;
 		double nextX;
 		double nextY = 0.5 * DEVICE_VERTICAL_SPACING;
-		for( Map<String, List<NetworkDevice>> level : levels ) {
+		for( Map<String, List<NetworkDevice>> groups : levels ) {
 			// Levels
-			nextX = 0.5 * (getWidth() - getLevelWidth( level ));
-			for( String group : level.keySet() ) {
+			nextX = 0.5 * (getWidth() - getLevelWidth( groups ));
+			List<String> groupNames = new ArrayList<>( groups.keySet() );
+			Collections.sort( groupNames );
+			for( String group : groupNames ) {
 				// Groups
 				nextX += GROUP_PADDING;
-				for( NetworkDevice device : level.get( group ) ) {
+				Pane groupView = groupViews.get( level + "-" + group );
+				List<NetworkDevice> devices = new ArrayList<>( groups.get( group ) );
+				devices.sort( graph.getRootDevice().getComparator() );
+				boolean firstInGroup = true;
+				for( NetworkDevice device : devices ) {
 					// Devices
 					NetworkDeviceView view = views.get( device );
-					if( view == null ) continue;
+					if( view == null ) {
+						log.log( Log.WARN, "Missing view for: " + device.getName() );
+						continue;
+					}
 
-					view.relocate( nextX, getHeight() - 0.5 * view.getHeight() - nextY );
+					double x = nextX;
+					double y = getHeight() - 0.5 * view.getHeight() - nextY;
+					view.relocate( x, y );
+
+					double offset = groupView.getPrefHeight();
+					if( firstInGroup ) {
+						double w = Math.max( view.getWidth(), groupView.getWidth() );
+						double h = Math.max( view.getHeight(), groupView.getPrefHeight() );
+						double adjust = 0.5 * (w - view.getWidth());
+						groupView.resizeRelocate( x - adjust, y - offset, w, h + offset );
+					} else {
+						double w = view.getLayoutX() + view.getWidth() - groupView.getLayoutX();
+						double h = view.getLayoutY() + view.getHeight() - groupView.getLayoutY();
+						groupView.resize( w, h );
+					}
+
 					nextX += DEVICE_HORIZONTAL_SPACING;
+					firstInGroup = false;
 				}
 				nextX += GROUP_PADDING;
 			}
 			nextY += DEVICE_VERTICAL_SPACING;
+			level++;
 		}
 	}
 
@@ -88,6 +124,7 @@ public class NetworkGraphTree extends Pane {
 		graph.register( NodeEvent.CHILD_ADDED, e -> addDevice( (NetworkDevice)e.getNewValue() ) );
 		// TODO if NodeEvent.REMOVING_CHILD is supported change the event handler
 		graph.register( NodeEvent.CHILD_REMOVED, e -> removeDevice( (NetworkDevice)e.getNode(), (NetworkDevice)e.getOldValue() ) );
+		graph.register( NodeEvent.NODE_CHANGED, e -> requestLayout() );
 
 		requestLayout();
 	}
@@ -103,8 +140,10 @@ public class NetworkGraphTree extends Pane {
 
 	private void registerDevice( NetworkDevice device ) {
 		views.computeIfAbsent( device, d -> {
+			List<Node> nodes = new ArrayList<>();
 			NetworkDeviceView view = new NetworkDeviceView( d );
-			getChildren().addAll( view, view.getDetails() );
+			nodes.add( view );
+			nodes.add( view.getDetails() );
 
 			int level = device.getLevel();
 			if( level >= levels.size() ) {
@@ -112,24 +151,40 @@ public class NetworkGraphTree extends Pane {
 					levels.add( new ConcurrentHashMap<>() );
 				}
 			}
-			Map<String, List<NetworkDevice>> map = levels.get( level );
-			List<NetworkDevice> list = map.computeIfAbsent( device.getGroup(), k -> new CopyOnWriteArrayList<>() );
+			Map<String, List<NetworkDevice>> group = levels.get( level );
+			List<NetworkDevice> list = group.computeIfAbsent( device.getGroup(), k -> {
+				NetworkGroupView groupView = new NetworkGroupView( k );
+				groupView.setViewOrder( 1 );
+				nodes.add( groupView );
+				groupViews.put( level + "-" + k, groupView );
+				return new CopyOnWriteArrayList<>();
+			} );
 			list.add( device );
 
 			// Add a line from this device to the parent
 			if( !device.isRoot() ) {
-				NetworkDeviceView parentView = views.get( device.getParent() );
+				NetworkDevice parent = device.getParent();
+				NetworkDeviceView parentView = views.get( parent );
+				if( parentView == null ) log.log( Log.WARN, "Parent view is null" );
 
-				Line line = new Line();
-				line.setViewOrder( 1 );
-				line.startXProperty().bind( view.layoutXProperty().add( view.widthProperty().multiply( 0.5 ) ) );
-				line.startYProperty().bind( view.layoutYProperty().add( view.heightProperty().multiply( 0.5 ) ) );
-				line.endXProperty().bind( parentView.layoutXProperty().add( parentView.widthProperty().multiply( 0.5 ) ) );
-				line.endYProperty().bind( parentView.layoutYProperty().add( parentView.heightProperty().multiply( 0.5 ) ) );
-				getChildren().add( line );
-
-				device.putResource( NetworkDevice.CONNECTOR, line );
+				double offset = 0.8 * DEVICE_VERTICAL_SPACING;
+				CubicCurve curve = new CubicCurve();
+				device.putResource( NetworkDevice.CONNECTOR, curve );
+				curve.getStyleClass().addAll( "network-device-connector" );
+				curve.setViewOrder( 2 );
+				curve.startXProperty().bind( view.layoutXProperty().add( view.widthProperty().multiply( 0.5 ) ) );
+				curve.startYProperty().bind( view.layoutYProperty().add( view.heightProperty().multiply( 0.5 ) ) );
+				curve.controlX1Property().bind( view.layoutXProperty().add( view.widthProperty().multiply( 0.5 ) ) );
+				curve.controlY1Property().bind( view.layoutYProperty().add( view.heightProperty().multiply( 0.5 ) ).add( offset ) );
+				curve.controlX2Property().bind( parentView.layoutXProperty().add( parentView.widthProperty().multiply( 0.5 ) ) );
+				curve.controlY2Property().bind( parentView.layoutYProperty().add( parentView.heightProperty().multiply( 0.5 ) ).subtract( offset ) );
+				curve.endXProperty().bind( parentView.layoutXProperty().add( parentView.widthProperty().multiply( 0.5 ) ) );
+				curve.endYProperty().bind( parentView.layoutYProperty().add( parentView.heightProperty().multiply( 0.5 ) ) );
+				curve.setStroke( CONNECTOR_PAINT );
+				curve.setFill( null );
+				nodes.add( curve );
 			}
+			getChildren().addAll( nodes );
 
 			return view;
 		} );

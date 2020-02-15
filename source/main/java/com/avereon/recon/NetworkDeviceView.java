@@ -19,9 +19,9 @@ class NetworkDeviceView extends StackPane {
 
 	private static final System.Logger log = Log.log();
 
-	static final double EXPECTED_STATE_SIZE = 25;
+	static final double EXPECTED_STATE_SIZE = 10;
 
-	private static final double STATE_SIZE = 20;
+	private static final double STATE_SIZE = 8;
 
 	private NetworkDevice device;
 
@@ -30,6 +30,8 @@ class NetworkDeviceView extends StackPane {
 	private Shape expected;
 
 	private VBox details;
+
+	private TextField group;
 
 	private TextField name;
 
@@ -45,6 +47,7 @@ class NetworkDeviceView extends StackPane {
 		currentState = new Circle( STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
 		expected = new Circle( EXPECTED_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
 
+		group = new TextField( device.getGroup() );
 		name = new TextField( device.getName() );
 		host = new TextField( device.getHost() );
 		address = new Label( device.getAddress() );
@@ -52,7 +55,7 @@ class NetworkDeviceView extends StackPane {
 		details = new VBox();
 		details.getStyleClass().add( "network-device-details" );
 		details.setAlignment( Pos.CENTER_LEFT );
-		details.getChildren().addAll( name, host, address );
+		details.getChildren().addAll( group, name, host, address );
 		details.setVisible( false );
 		details.setViewOrder( -1 );
 		details.setFocusTraversable( true );
@@ -78,14 +81,28 @@ class NetworkDeviceView extends StackPane {
 		} );
 		expected.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 			//log.log( Log.WARN, e.getCode() + " pressed" );
-			if( e.getCode() == KeyCode.EQUALS ) {
-				getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
-			} else if( e.getCode() == KeyCode.MINUS ) {
-				com.avereon.data.Node parent = getDevice().getParent();
-				if( parent != null && !(parent instanceof NetworkGraph) ) ((NetworkDevice)parent).removeDevice( device );
+			switch( e.getCode() ) {
+				case INSERT : {
+					getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
+					break;
+				}
+				case DELETE: {
+					com.avereon.data.Node parent = getDevice().getParent();
+					if( parent != null && !(parent instanceof NetworkGraph) ) ((NetworkDevice)parent).removeDevice( device );
+					break;
+				}
+				case DIGIT0: {
+					getDevice().setExpected( DeviceResponse.OFF );
+					break;
+				}
+				case DIGIT1: {
+					getDevice().setExpected( DeviceResponse.ONLINE );
+					break;
+				}
 			}
 		} );
 
+		new FieldInputHandler( group, () -> device.setGroup( group.getText() ) );
 		new FieldInputHandler( name, () -> device.setName( name.getText() ) );
 		new FieldInputHandler( host, () -> device.setHost( host.getText() ) );
 
@@ -107,7 +124,8 @@ class NetworkDeviceView extends StackPane {
 	}
 
 	private void updateState() {
-		details.setVisible( details.isVisible() || (getDevice().getResponse() != DeviceResponse.UNKNOWN && getDevice().getExpected() != getDevice().getResponse()) );
+		//details.setVisible( details.isVisible() || (getDevice().getResponse() != DeviceResponse.UNKNOWN && getDevice().getExpected() != getDevice().getResponse()) );
+		group.setText( getDevice().getGroup() );
 		name.setText( getDevice().getName() );
 		host.setText( getDevice().getHost() );
 		address.setText( getDevice().getAddress() );

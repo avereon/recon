@@ -62,10 +62,19 @@ public class NetworkGraphCodec extends Codec {
 		try {
 			maps.forEach( v -> {
 				String id = v.get( "id" );
+				String group = v.get( "group" );
 				String name = v.get( "name" );
 				String host = v.get( "host" );
 				String parent = v.get( "parent" );
-				devices.put( id, new NetworkDevice().setId( id ).setName( name ).setHost( host ) );
+				if( group == null ) group = "default";
+
+				DeviceResponse expected;
+				try {
+					expected = DeviceResponse.valueOf( v.get( "expected" ) );
+				} catch( Throwable throwable ) {
+					expected = DeviceResponse.UNKNOWN;
+				}
+				devices.put( id, new NetworkDevice().setId( id ).setGroup( group ).setName( name ).setHost( host ).setExpected( expected ) );
 				parents.put( id, parent );
 			} );
 
@@ -92,7 +101,7 @@ public class NetworkGraphCodec extends Codec {
 		NetworkGraph graph = asset.getModel();
 		NetworkDevice root = graph.getRootDevice();
 
-		Set<Map<String,String>> deviceMaps = new HashSet<>(  );
+		Set<Map<String, String>> deviceMaps = new HashSet<>();
 		root.walk( d -> {
 			Node p = d.getParent();
 			NetworkDevice parent = null;
@@ -100,10 +109,12 @@ public class NetworkGraphCodec extends Codec {
 
 			Map<String, String> map = new HashMap<>();
 			map.put( "id", d.getId() );
+			map.put( "group", d.getGroup() );
 			map.put( "name", d.getName() );
 			map.put( "host", d.getHost() );
+			map.put( "expected", d.getExpected().name() );
 			map.put( "parent", parent == null ? "null" : parent.getId() );
-			deviceMaps.add( map);
+			deviceMaps.add( map );
 		} );
 
 		ObjectWriter writer = new ObjectMapper().writer( new DefaultPrettyPrinter() );

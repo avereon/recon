@@ -29,8 +29,6 @@ public class NetworkDevice extends Node {
 
 	private static final String IPV6 = "ipv6";
 
-	private static final String REQUEST = "request";
-
 	private static final String EXPECTED = "expected";
 
 	private static final String RESPONSE = "response";
@@ -48,7 +46,6 @@ public class NetworkDevice extends Node {
 		defineNaturalKey( TYPE, NAME );
 		setId( UUID.randomUUID().toString() );
 		setGroup( "default" );
-		setRequest( DeviceRequest.RUNNING );
 		setExpected( DeviceResponse.ONLINE );
 		setResponse( DeviceResponse.UNKNOWN );
 	}
@@ -102,15 +99,6 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
-	public DeviceRequest getRequest() {
-		return getValue( REQUEST );
-	}
-
-	public NetworkDevice setRequest( DeviceRequest request ) {
-		setValue( REQUEST, request );
-		return this;
-	}
-
 	public DeviceResponse getExpected() {
 		return getValue( EXPECTED );
 	}
@@ -121,11 +109,11 @@ public class NetworkDevice extends Node {
 	}
 
 	public DeviceResponse getResponse() {
-		return getValue( RESPONSE );
+		return getResource( RESPONSE );
 	}
 
 	public NetworkDevice setResponse( DeviceResponse response ) {
-		setValue( RESPONSE, response );
+		putResource( RESPONSE, response );
 		return this;
 	}
 
@@ -175,17 +163,7 @@ public class NetworkDevice extends Node {
 			setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
 			setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
 
-			boolean parentReachable = true;
-			if( !isRoot() ) {
-				NetworkDevice parent = getParent();
-				while( parentReachable ) {
-					parentReachable = parent.getResponse() == DeviceResponse.ONLINE;
-					if( parent.isRoot() ) break;
-					parent = getParent();
-				}
-			}
-
-			if( !isRoot() && !parentReachable ) {
+			if( !isRoot() && ((NetworkDevice)getParent()).getResponse() != DeviceResponse.ONLINE ) {
 				setResponse( DeviceResponse.UNKNOWN );
 			} else if( isReachable( 7, 22, 443 ) ) {
 				setResponse( DeviceResponse.ONLINE );
@@ -200,7 +178,6 @@ public class NetworkDevice extends Node {
 			log.log( Log.DEBUG, exception );
 			return false;
 		} finally {
-			//log.log( Log.INFO, getName() + " is " + getResponse() + "!" );
 			lastUpdateTime = System.currentTimeMillis();
 		}
 
