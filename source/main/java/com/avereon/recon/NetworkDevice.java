@@ -165,7 +165,7 @@ public class NetworkDevice extends Node {
 
 			if( !isRoot() && ((NetworkDevice)getParent()).getResponse() != DeviceResponse.ONLINE ) {
 				setResponse( DeviceResponse.UNKNOWN );
-			} else if( isReachable( 7, 22, 443 ) ) {
+			} else if( isReachable( 7, 22, 443, 3389 ) ) {
 				setResponse( DeviceResponse.ONLINE );
 			} else {
 				if( getExpected() == DeviceResponse.OFF ) {
