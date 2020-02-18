@@ -3,6 +3,7 @@ package com.avereon.recon;
 import com.avereon.data.Node;
 import com.avereon.util.Log;
 import com.avereon.util.ThreadUtil;
+import javafx.scene.shape.Shape;
 
 import java.io.IOException;
 import java.net.*;
@@ -15,13 +16,11 @@ public class NetworkDevice extends Node {
 
 	private static final System.Logger log = Log.log();
 
-	static final String CONNECTOR = "connector";
-
 	private static final String ID = "id";
 
-	private static final String NAME = "name";
-
 	private static final String TYPE = "type";
+
+	private static final String NAME = "name";
 
 	private static final String HOST = "host";
 
@@ -37,6 +36,8 @@ public class NetworkDevice extends Node {
 
 	private static final String ROOT = "root";
 
+	private static final String CONNECTOR = "connector";
+
 	private long maxUpdateRate = 2500;
 
 	private long lastUpdateTime;
@@ -44,6 +45,7 @@ public class NetworkDevice extends Node {
 	public NetworkDevice() {
 		definePrimaryKey( ID );
 		defineNaturalKey( TYPE, NAME );
+		addModifyingKeys( ID, TYPE, NAME, HOST, GROUP, EXPECTED );
 		setId( UUID.randomUUID().toString() );
 		setGroup( "default" );
 		setExpected( DeviceResponse.ONLINE );
@@ -109,11 +111,11 @@ public class NetworkDevice extends Node {
 	}
 
 	public DeviceResponse getResponse() {
-		return getResource( RESPONSE );
+		return getValue( RESPONSE );
 	}
 
 	public NetworkDevice setResponse( DeviceResponse response ) {
-		putResource( RESPONSE, response );
+		setValue( RESPONSE, response );
 		return this;
 	}
 
@@ -126,14 +128,13 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
-	public int getLevel() {
-		int level = 0;
-		Node node = getParent();
-		while( !(node instanceof NetworkGraph) ) {
-			level++;
-			node = node.getParent();
-		}
-		return level;
+	public NetworkDevice setConnector( Shape connector ) {
+		setValue( CONNECTOR, connector );
+		return this;
+	}
+
+	public Shape getConnector() {
+		return getValue( CONNECTOR );
 	}
 
 	public NetworkDevice getDevice( String id ) {
@@ -184,13 +185,23 @@ public class NetworkDevice extends Node {
 		return getValues( NetworkDevice.class );
 	}
 
+	public int getLevel() {
+		int level = 0;
+		Node node = getParent();
+		while( !(node instanceof NetworkGraph) ) {
+			level++;
+			node = node.getParent();
+		}
+		return level;
+	}
+
 	public boolean isRoot() {
-		Boolean isRoot = getResource( ROOT );
+		Boolean isRoot = getValue( ROOT );
 		if( isRoot != null ) return isRoot;
 
 		Node parent = getParent();
 		isRoot = parent instanceof NetworkGraph;
-		putResource( ROOT, isRoot );
+		setValue( ROOT, isRoot );
 		return isRoot;
 	}
 

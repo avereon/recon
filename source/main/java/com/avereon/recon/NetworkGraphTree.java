@@ -169,7 +169,7 @@ public class NetworkGraphTree extends Pane {
 
 				double offset = 0.8 * DEVICE_VERTICAL_SPACING;
 				CubicCurve curve = new CubicCurve();
-				device.putResource( NetworkDevice.CONNECTOR, curve );
+				device.setConnector( curve );
 				curve.getStyleClass().addAll( "network-device-connector" );
 				curve.setViewOrder( 2 );
 				curve.startXProperty().bind( view.layoutXProperty().add( view.widthProperty().multiply( 0.5 ) ) );
@@ -195,7 +195,7 @@ public class NetworkGraphTree extends Pane {
 			Map<String, List<NetworkDevice>> level = levels.get( parent.getLevel() + 1 );
 			level.get( device.getGroup() ).remove( device );
 
-			getChildren().removeAll( v, v.getDetails(), device.getResource( NetworkDevice.CONNECTOR ) );
+			getChildren().removeAll( v, v.getDetails(), device.getConnector() );
 			return null;
 		} );
 	}
