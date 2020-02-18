@@ -21,11 +21,11 @@ class NetworkDeviceView extends StackPane {
 
 	static final double EXPECTED_STATE_SIZE = 10;
 
-	private static final double STATE_SIZE = 8;
+	private static final double ACTUAL_STATE_SIZE = 8;
 
 	private NetworkDevice device;
 
-	private Shape currentState;
+	private Shape actual;
 
 	private Shape expected;
 
@@ -44,8 +44,8 @@ class NetworkDeviceView extends StackPane {
 
 		getStyleClass().addAll( "network-device" );
 
-		currentState = new Circle( STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
 		expected = new Circle( EXPECTED_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
+		actual = new Circle( ACTUAL_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
 
 		group = new TextField( device.getGroup() );
 		name = new TextField( device.getName() );
@@ -64,11 +64,11 @@ class NetworkDeviceView extends StackPane {
 		} );
 
 		setAlignment( Pos.CENTER );
-		getChildren().addAll( expected, currentState );
+		getChildren().addAll( expected, actual );
 
 		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
 
-		currentState.setMouseTransparent( true );
+		actual.setMouseTransparent( true );
 
 		expected.setFocusTraversable( true );
 		expected.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> {
@@ -82,7 +82,7 @@ class NetworkDeviceView extends StackPane {
 		expected.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
 			//log.log( Log.WARN, e.getCode() + " pressed" );
 			switch( e.getCode() ) {
-				case INSERT : {
+				case INSERT: {
 					getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
 					break;
 				}
@@ -92,7 +92,7 @@ class NetworkDeviceView extends StackPane {
 					break;
 				}
 				case DIGIT0: {
-					getDevice().setExpected( DeviceResponse.OFF );
+					getDevice().setExpected( DeviceResponse.OFFLINE );
 					break;
 				}
 				case DIGIT1: {
@@ -130,7 +130,7 @@ class NetworkDeviceView extends StackPane {
 		host.setText( getDevice().getHost() );
 		address.setText( getDevice().getAddress() );
 		expected.setFill( getDevice().getExpected().getPaint() );
-		currentState.setFill( getDevice().getResponse().getPaint() );
+		actual.setFill( getDevice().getExpected().getPaint( getDevice().getResponse() ) );
 	}
 
 	private class FieldInputHandler {

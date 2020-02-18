@@ -70,7 +70,9 @@ public class NetworkGraphCodec extends Codec {
 
 				DeviceResponse expected;
 				try {
-					expected = DeviceResponse.valueOf( v.get( "expected" ) );
+					String exp = v.get( "expected" ).toUpperCase();
+					if( "OFF".equals( exp ) ) exp = DeviceResponse.OFFLINE.name();
+					expected = DeviceResponse.valueOf( exp );
 				} catch( Throwable throwable ) {
 					expected = DeviceResponse.UNKNOWN;
 				}

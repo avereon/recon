@@ -168,11 +168,7 @@ public class NetworkDevice extends Node {
 			} else if( isReachable( 7, 22, 443, 3389 ) ) {
 				setResponse( DeviceResponse.ONLINE );
 			} else {
-				if( getExpected() == DeviceResponse.OFF ) {
-					setResponse( DeviceResponse.OFF );
-				} else {
-					setResponse( DeviceResponse.OFFLINE );
-				}
+				setResponse( DeviceResponse.OFFLINE );
 			}
 		} catch( IOException exception ) {
 			log.log( Log.DEBUG, exception );
