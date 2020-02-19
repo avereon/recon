@@ -6,7 +6,7 @@ import com.avereon.xenon.ToolRegistration;
 
 public class Recon extends Mod {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private NetworkGraphAssetType networkGraphAssetType;
 

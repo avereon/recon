@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NetworkGraphTree extends Pane {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private static final double DEVICE_HORIZONTAL_SPACING = 3 * NetworkDeviceView.EXPECTED_STATE_SIZE;
 

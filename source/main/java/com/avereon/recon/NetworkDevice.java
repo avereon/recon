@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class NetworkDevice extends Node {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private static final String ID = "id";
 

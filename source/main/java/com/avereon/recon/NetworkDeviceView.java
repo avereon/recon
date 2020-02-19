@@ -17,7 +17,7 @@ import javafx.scene.shape.Shape;
 
 class NetworkDeviceView extends StackPane {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	static final double EXPECTED_STATE_SIZE = 10;
 

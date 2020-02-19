@@ -22,7 +22,7 @@ public class NetworkGraphCodec extends Codec {
 
 	private static final String KEY = NetworkGraphAssetType.MEDIA_TYPE + "/netgraph";
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private Product product;
 

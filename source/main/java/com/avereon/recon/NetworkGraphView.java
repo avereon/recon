@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 class NetworkGraphView extends VBox {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private NetworkGraph graph;
 
