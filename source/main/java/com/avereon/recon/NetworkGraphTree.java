@@ -1,5 +1,6 @@
 package com.avereon.recon;
 
+import com.avereon.data.NodeComparator;
 import com.avereon.data.NodeEvent;
 import com.avereon.util.Log;
 import javafx.scene.Node;
@@ -60,10 +61,13 @@ public class NetworkGraphTree extends Pane {
 			for( String group : groupNames ) {
 				// Groups
 				nextX += GROUP_PADDING;
+				boolean firstInGroup = true;
 				Pane groupView = groupViews.get( level + "-" + group );
 				List<NetworkDevice> devices = new ArrayList<>( groups.get( group ) );
-				devices.sort( graph.getRootDevice().getComparator() );
-				boolean firstInGroup = true;
+				devices.sort( new NodeComparator<>( List.of( "type", "name" ) ) );
+
+				double minX = Double.MAX_VALUE;
+				double maxX = Double.MIN_VALUE;
 				for( NetworkDevice device : devices ) {
 					// Devices
 					NetworkDeviceView view = views.get( device );
@@ -76,12 +80,13 @@ public class NetworkGraphTree extends Pane {
 					double y = getHeight() - 0.5 * view.getHeight() - nextY;
 					view.relocate( x, y );
 
-					double offset = groupView.getPrefHeight();
+					minX = Math.min( minX, x );
+					maxX = Math.max( maxX, x + view.getWidth() );
 					if( firstInGroup ) {
 						double w = Math.max( view.getWidth(), groupView.getWidth() );
 						double h = Math.max( view.getHeight(), groupView.getPrefHeight() );
-						double adjust = 0.5 * (w - view.getWidth());
-						groupView.resizeRelocate( x - adjust, y - offset, w, h + offset );
+						double offset = groupView.getPrefHeight();
+						groupView.resizeRelocate( x, y - offset, w, h + offset );
 					} else {
 						double w = view.getLayoutX() + view.getWidth() - groupView.getLayoutX();
 						double h = view.getLayoutY() + view.getHeight() - groupView.getLayoutY();
@@ -91,6 +96,15 @@ public class NetworkGraphTree extends Pane {
 					nextX += DEVICE_HORIZONTAL_SPACING;
 					firstInGroup = false;
 				}
+
+				// In the rare case the group width is larger than all the devices
+				// This can happen with long names and few devices
+				double delta = maxX - minX;
+				if(delta < groupView.getWidth() ) {
+					double adjust = 0.5 * (groupView.getWidth() - delta);
+					groupView.relocate( groupView.getLayoutX() - adjust, groupView.getLayoutY() );
+				}
+
 				nextX += GROUP_PADDING;
 			}
 			nextY += DEVICE_VERTICAL_SPACING;
@@ -152,11 +166,11 @@ public class NetworkGraphTree extends Pane {
 				}
 			}
 			Map<String, List<NetworkDevice>> group = levels.get( level );
-			List<NetworkDevice> list = group.computeIfAbsent( device.getGroup(), k -> {
-				NetworkGroupView groupView = new NetworkGroupView( k );
+			List<NetworkDevice> list = group.computeIfAbsent( device.getGroup(), name -> {
+				NetworkGroupView groupView = new NetworkGroupView( name );
 				groupView.setViewOrder( 1 );
 				nodes.add( groupView );
-				groupViews.put( level + "-" + k, groupView );
+				groupViews.put( level + "-" + name, groupView );
 				return new CopyOnWriteArrayList<>();
 			} );
 			list.add( device );
