@@ -83,14 +83,14 @@ public class ReconTool extends ProgramTool {
 	@Override
 	protected void activate() throws ToolException {
 		pushAction( "runpause", runPauseAction );
-		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( "runpause" );
+		pushToolActions( "runpause" );
 
 		Platform.runLater( () -> getProgram().getActionLibrary().getAction( "runpause" ).setState( isRunning() ? "pause" : "run" ) );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pullToolbarActions();
+		pullToolActions();
 		pullAction( "runpause", runPauseAction );
 	}
 
