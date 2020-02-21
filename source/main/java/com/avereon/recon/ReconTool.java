@@ -26,8 +26,6 @@ public class ReconTool extends ProgramTool {
 
 	private static Timer timer = new Timer( true );
 
-	private NetworkGraphView networkGraphView;
-
 	private NetworkGraphTree networkGraphTree;
 
 	private RunPauseAction runPauseAction;
@@ -60,14 +58,16 @@ public class ReconTool extends ProgramTool {
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) throws ToolException {
-		//networkGraphView.setNetworkGraph( getGraph() );
 		networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
 	@Override
 	protected void assetRefreshed() throws ToolException {
-		//networkGraphView.setNetworkGraph( getGraph() );
 		networkGraphTree.setNetworkGraph( getGraph() );
+	}
+
+	boolean isRunning() {
+		return updateTask != null;
 	}
 
 	synchronized void start() {
@@ -75,12 +75,8 @@ public class ReconTool extends ProgramTool {
 		timer.schedule( updateTask = Lambda.timerTask( ReconTool.this::requestUpdates ), 0, updateInterval );
 	}
 
-	boolean isRunning() {
-		return updateTask != null;
-	}
-
 	synchronized void stop() {
-		if( updateTask != null ) updateTask.cancel();
+		if( isRunning() ) updateTask.cancel();
 		updateTask = null;
 	}
 
@@ -89,13 +85,18 @@ public class ReconTool extends ProgramTool {
 		pushAction( "runpause", runPauseAction );
 		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( "runpause" );
 
-		Platform.runLater( () -> getProgram().getActionLibrary().getAction( "runpause" ).setState( updateTask == null ? "run" : "pause" ) );
+		Platform.runLater( () -> getProgram().getActionLibrary().getAction( "runpause" ).setState( isRunning() ? "pause" : "run" ) );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		getProgram().getWorkspaceManager().getActiveWorkspace().pullToolbarActions();
 		pullAction( "runpause", runPauseAction );
+	}
+
+	@Override
+	protected void deallocate() throws ToolException {
+		stop();
 	}
 
 	private NetworkGraph getGraph() {

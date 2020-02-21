@@ -144,6 +144,7 @@ public class NetworkGraphTree extends Pane {
 	}
 
 	private void addDevice( NetworkDevice device ) {
+		log.log( Log.WARN, "Adding a new device..." );
 		registerDevice( device );
 		views.get( device ).getDetails().setVisible( true );
 	}
@@ -179,7 +180,7 @@ public class NetworkGraphTree extends Pane {
 			if( !device.isRoot() ) {
 				NetworkDevice parent = device.getParent();
 				NetworkDeviceView parentView = views.get( parent );
-				if( parentView == null ) log.log( Log.WARN, "Parent view is null" );
+				if( parentView == null ) log.log( Log.ERROR, "Parent view is null: " + parent.getName() );
 
 				double offset = 0.8 * DEVICE_VERTICAL_SPACING;
 				CubicCurve curve = new CubicCurve();

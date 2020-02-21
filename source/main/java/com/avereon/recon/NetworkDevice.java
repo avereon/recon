@@ -142,11 +142,13 @@ public class NetworkDevice extends Node {
 	}
 
 	public void addDevice( NetworkDevice device ) {
+		addModifyingKeys( device.getId() );
 		setValue( device.getId(), device );
 	}
 
 	public void removeDevice( NetworkDevice device ) {
 		setValue( device.getId(), null );
+		removeModifyingKeys( device.getId() );
 	}
 
 	public void updateStatus( int retryCount, int retryDelay, TimeUnit retryUnit ) {
