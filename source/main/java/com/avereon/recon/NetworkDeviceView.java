@@ -80,7 +80,7 @@ class NetworkDeviceView extends StackPane {
 			}
 		} );
 		expected.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
-			log.log( Log.WARN, e.getCode() + " pressed" );
+			//log.log( Log.WARN, e.getCode() + " pressed" );
 			switch( e.getCode() ) {
 				case INSERT: {
 					getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
@@ -139,7 +139,6 @@ class NetworkDeviceView extends StackPane {
 
 		private FieldInputHandler( TextField field, Runnable action ) {
 			field.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
-				log.log( Log.WARN, e.getCode() + " key pressed..." );
 				if( e.getCode() == KeyCode.ESCAPE ) {
 					field.setText( priorValue );
 					details.requestFocus();
