@@ -61,7 +61,7 @@ public class ReconTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) {
+	protected void open( OpenAssetRequest request ) {
 		networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
