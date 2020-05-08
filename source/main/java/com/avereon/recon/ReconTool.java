@@ -26,11 +26,11 @@ public class ReconTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
-	private static Timer timer = new Timer( true );
+	private static final Timer timer = new Timer( true );
 
-	private NetworkGraphTree networkGraphTree;
+	private final NetworkGraphTree networkGraphTree;
 
-	private RunPauseAction runPauseAction;
+	private final RunPauseAction runPauseAction;
 
 	private TimerTask updateTask;
 
@@ -42,7 +42,7 @@ public class ReconTool extends ProgramTool {
 
 	private TimeUnit retryUnit = TimeUnit.SECONDS;
 
-	private EventHandler<NodeEvent> modelChangeHandler;
+	private final EventHandler<NodeEvent> modelChangeHandler;
 
 	public ReconTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -58,6 +58,8 @@ public class ReconTool extends ProgramTool {
 		scroller.setFitToWidth( true );
 
 		getChildren().addAll( networkGraphTree );
+
+		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
 	@Override
@@ -80,8 +82,7 @@ public class ReconTool extends ProgramTool {
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
-		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
+	protected void ready( OpenAssetRequest request ) throws ToolException {
 		getGraph().register( NodeEvent.NODE_CHANGED, modelChangeHandler );
 	}
 
