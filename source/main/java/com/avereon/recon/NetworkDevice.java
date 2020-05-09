@@ -233,7 +233,9 @@ public class NetworkDevice extends Node {
 				socket.connect( new InetSocketAddress( address, port ), timeout );
 				return true;
 			} catch( SocketTimeoutException exception ) {
-				// Intentionally ignore exception
+				log.log( Log.INFO, this + " connection timeout" );
+			} catch( ConnectException exception ) {
+				log.log( Log.INFO, this + " " + exception.getMessage().toLowerCase() );
 			}
 		}
 		return false;

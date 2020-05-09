@@ -11,14 +11,10 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,7 +43,7 @@ public class ReconTool extends ProgramTool {
 	public ReconTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 
-		getStylesheets().add( product.getClassLoader().getResource( "recon.css" ).toExternalForm() );
+		getStylesheets().add( Objects.requireNonNull( product.getClassLoader().getResource( "recon.css" ) ).toExternalForm() );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "recon" ) );
 
 		runPauseAction = new RunPauseAction( this );
@@ -60,11 +56,6 @@ public class ReconTool extends ProgramTool {
 		getChildren().addAll( networkGraphTree );
 
 		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
-	}
-
-	@Override
-	protected void open( OpenAssetRequest request ) {
-		networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
 	boolean isRunning() {
@@ -82,12 +73,17 @@ public class ReconTool extends ProgramTool {
 	}
 
 	@Override
-	protected void ready( OpenAssetRequest request ) throws ToolException {
+	protected void ready( OpenAssetRequest request ) {
 		getGraph().register( NodeEvent.NODE_CHANGED, modelChangeHandler );
 	}
 
 	@Override
-	protected void activate() throws ToolException {
+	protected void open( OpenAssetRequest request ) {
+		networkGraphTree.setNetworkGraph( getGraph() );
+	}
+
+	@Override
+	protected void activate() {
 		pushAction( "runpause", runPauseAction );
 		pushToolActions( "runpause" );
 
@@ -95,13 +91,13 @@ public class ReconTool extends ProgramTool {
 	}
 
 	@Override
-	protected void conceal() throws ToolException {
+	protected void conceal() {
 		pullToolActions();
 		pullAction( "runpause", runPauseAction );
 	}
 
 	@Override
-	protected void deallocate() throws ToolException {
+	protected void deallocate() {
 		getGraph().unregister( NodeEvent.NODE_CHANGED, modelChangeHandler );
 		stop();
 	}

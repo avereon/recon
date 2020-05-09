@@ -5,7 +5,7 @@ import javafx.event.ActionEvent;
 
 class RunPauseAction extends Action {
 
-	private ReconTool tool;
+	private final ReconTool tool;
 
 	RunPauseAction( ReconTool tool ) {
 		super( tool.getProgram() );
