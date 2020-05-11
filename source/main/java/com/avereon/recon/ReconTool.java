@@ -44,7 +44,6 @@ public class ReconTool extends ProgramTool {
 		super( product, asset );
 
 		getStylesheets().add( Objects.requireNonNull( product.getClassLoader().getResource( "recon.css" ) ).toExternalForm() );
-		setGraphic( product.getProgram().getIconLibrary().getIcon( "recon" ) );
 
 		runPauseAction = new RunPauseAction( this );
 
@@ -74,6 +73,8 @@ public class ReconTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
+		setTitle( getAsset().getName() );
+		setGraphic( getProgram().getIconLibrary().getIcon( "recon" ) );
 		getGraph().register( NodeEvent.NODE_CHANGED, modelChangeHandler );
 	}
 
