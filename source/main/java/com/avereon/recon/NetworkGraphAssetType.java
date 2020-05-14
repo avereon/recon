@@ -7,8 +7,6 @@ import com.avereon.xenon.asset.AssetType;
 
 public class NetworkGraphAssetType extends AssetType {
 
-	static final String MEDIA_TYPE = "application/vnd.avereon.recon.network.graph";
-
 	public NetworkGraphAssetType( ProgramProduct product ) {
 		super( product, "recon" );
 		setDefaultCodec( new NetworkGraphCodec( product ) );
@@ -16,7 +14,7 @@ public class NetworkGraphAssetType extends AssetType {
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return getDefaultCodec().getKey();
 	}
 
 	@Override

@@ -20,20 +20,21 @@ import java.util.Set;
 
 public class NetworkGraphCodec extends Codec {
 
-	private static final String KEY = NetworkGraphAssetType.MEDIA_TYPE + "/netgraph";
+	static final String MEDIA_TYPE = "application/vnd.avereon.recon.network.graph";
 
 	private static final System.Logger log = Log.get();
 
-	private Product product;
+	private final Product product;
 
 	public NetworkGraphCodec( Product product ) {
 		this.product = product;
 		setDefaultExtension( "netgraph" );
+		addSupported( Pattern.MEDIATYPE, MEDIA_TYPE );
 	}
 
 	@Override
 	public String getKey() {
-		return KEY;
+		return MEDIA_TYPE;
 	}
 
 	@Override
