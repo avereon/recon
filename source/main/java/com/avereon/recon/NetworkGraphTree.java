@@ -86,11 +86,13 @@ public class NetworkGraphTree extends Pane {
 						double w = Math.max( view.getWidth(), groupView.getWidth() );
 						double h = Math.max( view.getHeight(), groupView.getPrefHeight() );
 						double offset = groupView.getPrefHeight();
-						groupView.resizeRelocate( x, y - offset, w, h + offset );
+						// FIXME The resize call causes an infinite loop
+						//groupView.resizeRelocate( x, y - offset, w, h + offset );
 					} else {
 						double w = view.getLayoutX() + view.getWidth() - groupView.getLayoutX();
 						double h = view.getLayoutY() + view.getHeight() - groupView.getLayoutY();
-						groupView.resize( w, h );
+						// FIXME The resize call causes an infinite loop
+						//groupView.resize( w, h );
 					}
 
 					nextX += DEVICE_HORIZONTAL_SPACING;
@@ -155,10 +157,10 @@ public class NetworkGraphTree extends Pane {
 
 	private void registerDevice( NetworkDevice device ) {
 		views.computeIfAbsent( device, d -> {
-			List<Node> nodes = new ArrayList<>();
+			List<Node> fxNodes = new ArrayList<>();
 			NetworkDeviceView view = new NetworkDeviceView( d );
-			nodes.add( view );
-			nodes.add( view.getDetails() );
+			fxNodes.add( view );
+			fxNodes.add( view.getDetails() );
 
 			int level = device.getLevel();
 			if( level >= levels.size() ) {
@@ -170,7 +172,7 @@ public class NetworkGraphTree extends Pane {
 			List<NetworkDevice> list = group.computeIfAbsent( device.getGroup(), name -> {
 				NetworkGroupView groupView = new NetworkGroupView( name );
 				groupView.setViewOrder( 1 );
-				nodes.add( groupView );
+				fxNodes.add( groupView );
 				groupViews.put( level + "-" + name, groupView );
 				return new CopyOnWriteArrayList<>();
 			} );
@@ -197,9 +199,9 @@ public class NetworkGraphTree extends Pane {
 				curve.endYProperty().bind( parentView.layoutYProperty().add( parentView.heightProperty().multiply( 0.5 ) ) );
 				curve.setStroke( CONNECTOR_PAINT );
 				curve.setFill( null );
-				nodes.add( curve );
+				fxNodes.add( curve );
 			}
-			getChildren().addAll( nodes );
+			getChildren().addAll( fxNodes );
 
 			return view;
 		} );

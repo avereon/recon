@@ -7,7 +7,7 @@ import javafx.scene.text.TextAlignment;
 
 public class NetworkGroupView extends BorderPane {
 
-	private Label name;
+	private final Label name;
 
 	public NetworkGroupView( String groupName ) {
 		getStyleClass().addAll( "network-group-view" );
@@ -20,8 +20,8 @@ public class NetworkGroupView extends BorderPane {
 		setTop( this.name );
 	}
 
-	public String getName() {
-		return name.getText();
-	}
+//	public String getName() {
+//		return name.getText();
+//	}
 
 }

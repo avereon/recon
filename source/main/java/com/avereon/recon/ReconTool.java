@@ -2,23 +2,23 @@ package com.avereon.recon;
 
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
+import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.action.common.RunPauseAction;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import javafx.application.Platform;
-import javafx.scene.control.ScrollPane;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ReconTool extends ProgramTool {
+public class ReconTool extends ProgramTool implements RunPauseResettable {
 
 	private static final System.Logger log = Log.get();
 
@@ -45,14 +45,14 @@ public class ReconTool extends ProgramTool {
 
 		getStylesheets().add( Objects.requireNonNull( product.getClassLoader().getResource( "recon.css" ) ).toExternalForm() );
 
-		runPauseAction = new RunPauseAction( this );
+		runPauseAction = new RunPauseAction( getProgram(), this );
 
 		// NOTE Adding the scroller really messes with the focus handling and key events
-		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
-		scroller.setFitToHeight( true );
-		scroller.setFitToWidth( true );
+//		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
+//		scroller.setFitToHeight( true );
+//		scroller.setFitToWidth( true );
 
-		getChildren().addAll( networkGraphTree );
+		getChildren().addAll( networkGraphTree = new NetworkGraphTree() );
 
 		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
 	}
@@ -61,15 +61,20 @@ public class ReconTool extends ProgramTool {
 		return updateTask != null;
 	}
 
-	synchronized void start() {
+	@Override
+	public synchronized void run() {
 		if( isRunning() ) return;
 		timer.schedule( updateTask = Lambda.timerTask( ReconTool.this::requestUpdates ), 0, updateInterval );
 	}
 
-	synchronized void stop() {
+	@Override
+	public synchronized void pause() {
 		if( isRunning() ) updateTask.cancel();
 		updateTask = null;
 	}
+
+	@Override
+	public void reset() {}
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
@@ -87,8 +92,7 @@ public class ReconTool extends ProgramTool {
 	protected void activate() {
 		pushAction( "runpause", runPauseAction );
 		pushToolActions( "runpause" );
-
-		Platform.runLater( () -> getProgram().getActionLibrary().getAction( "runpause" ).setState( isRunning() ? "pause" : "run" ) );
+		if( getAsset().isLoaded() ) runPauseAction.setState( isRunning() ? "pause" : "run" );
 	}
 
 	@Override
@@ -100,7 +104,7 @@ public class ReconTool extends ProgramTool {
 	@Override
 	protected void deallocate() {
 		getGraph().unregister( NodeEvent.NODE_CHANGED, modelChangeHandler );
-		stop();
+		pause();
 	}
 
 	private NetworkGraph getGraph() {
@@ -140,7 +144,6 @@ public class ReconTool extends ProgramTool {
 				}
 			} );
 		}
-
 	}
 
 }
