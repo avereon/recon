@@ -15,7 +15,7 @@ public class Recon extends Mod {
 
 	@Override
 	public void startup() {
-		registerIcon( "recon", ReconIcon.class );
+		registerIcon( "recon", new ReconIcon() );
 		registerAssetType( networkGraphAssetType = new NetworkGraphAssetType( this ) );
 		registerTool( networkGraphAssetType, new ToolRegistration( this, ReconTool.class ) );
 
@@ -28,7 +28,7 @@ public class Recon extends Mod {
 
 		unregisterTool( networkGraphAssetType, ReconTool.class );
 		unregisterAssetType( networkGraphAssetType );
-		unregisterIcon( "recon", ReconIcon.class );
+		unregisterIcon( "recon", new ReconIcon() );
 	}
 
 	@Override
