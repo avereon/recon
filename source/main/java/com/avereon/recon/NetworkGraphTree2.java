@@ -2,7 +2,9 @@ package com.avereon.recon;
 
 import com.avereon.util.Log;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -106,23 +108,29 @@ public class NetworkGraphTree2 extends StackPane {
 		}
 
 		private void linkGroups( Region parentView, Region childView ) {
-			double offset = 0;
+			double offset = 50;
 
 			CubicCurve curve = new CubicCurve();
 			//curve.getStyleClass().addAll( "network-device-connector" );
 			curve.setViewOrder( 2 );
 
-			curve.startXProperty().bind( parentView.layoutXProperty().add( parentView.widthProperty().multiply( 0.5 ) ) );
-			curve.startYProperty().bind( parentView.layoutYProperty().add( parentView.heightProperty() ) );
+			parentView.localToSceneTransformProperty().addListener( (v,o,n) -> {
+				Bounds parentBounds = parentView.getBoundsInLocal();
+				Point2D parentAnchor = curve.sceneToLocal( parentView.localToScene( parentBounds.getCenterX(), parentBounds.getMaxY() ) );
+				curve.setStartX( parentAnchor.getX() );
+				curve.setStartY( parentAnchor.getY() );
+				curve.setControlX1( parentAnchor.getX() );
+				curve.setControlY1( parentAnchor.getY()+offset );
+			} );
 
-			curve.controlX1Property().bind( parentView.layoutXProperty().add( parentView.widthProperty().multiply( 0.5 ) ) );
-			curve.controlY1Property().bind( parentView.layoutYProperty().add( parentView.heightProperty() ).add( offset ) );
-
-			curve.controlX2Property().bind( childView.layoutXProperty().add( childView.widthProperty().multiply( 0.5 ) ) );
-			curve.controlY2Property().bind( childView.layoutYProperty().subtract( offset ) );
-
-			curve.endXProperty().bind( childView.layoutXProperty().add( childView.widthProperty().multiply( 0.5 ) ) );
-			curve.endYProperty().bind( childView.layoutYProperty() );
+			childView.localToSceneTransformProperty().addListener( (v,o,n) ->{
+				Bounds childBounds = childView.getBoundsInLocal();
+				Point2D childAnchor = curve.sceneToLocal( n.transform( childBounds.getCenterX(), childBounds.getMinY()  ) );
+				curve.setControlX2( childAnchor.getX() );
+				curve.setControlY2( childAnchor.getY()-offset );
+				curve.setEndX( childAnchor.getX() );
+				curve.setEndY( childAnchor.getY() );
+			});
 
 			curve.setStroke( CONNECTOR_PAINT );
 			curve.setFill( null );
