@@ -24,7 +24,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 
 	private static final Timer timer = new Timer( true );
 
-	private final NetworkGraphTree networkGraphTree;
+	private final NetworkGraphTree2 networkGraphTree;
 
 	private final RunPauseAction runPauseAction;
 
@@ -52,8 +52,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 //		scroller.setFitToHeight( true );
 //		scroller.setFitToWidth( true );
 
-		getChildren().addAll( networkGraphTree = new NetworkGraphTree() );
-
+		getChildren().addAll( networkGraphTree = new NetworkGraphTree2() );
 		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
 	}
 

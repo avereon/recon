@@ -3,6 +3,7 @@ package com.avereon.recon;
 import com.avereon.data.Node;
 import com.avereon.util.Log;
 import com.avereon.util.ThreadUtil;
+import javafx.scene.layout.Region;
 import javafx.scene.shape.Shape;
 
 import java.io.IOException;
@@ -37,6 +38,8 @@ public class NetworkDevice extends Node {
 	private static final String ROOT = "root";
 
 	private static final String CONNECTOR = "connector";
+
+	private static final String GROUP_VIEW = "group-view";
 
 	private long maxUpdateRate = 2500;
 
@@ -128,13 +131,22 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
-	public NetworkDevice setConnector( Shape connector ) {
-		setValue( CONNECTOR, connector );
+	public Region getGroupView() {
+		return getValue( GROUP_VIEW );
+	}
+
+	public NetworkDevice setGroupView( Region groupView ) {
+		setValue( GROUP_VIEW, groupView );
 		return this;
 	}
 
 	public Shape getConnector() {
 		return getValue( CONNECTOR );
+	}
+
+	public NetworkDevice setConnector( Shape connector ) {
+		setValue( CONNECTOR, connector );
+		return this;
 	}
 
 	public NetworkDevice getDevice( String id ) {
