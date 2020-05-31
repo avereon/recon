@@ -3,7 +3,6 @@ package com.avereon.recon;
 import com.avereon.data.Node;
 import com.avereon.util.Log;
 import com.avereon.util.ThreadUtil;
-import javafx.scene.layout.Region;
 import javafx.scene.shape.Shape;
 
 import java.io.IOException;
@@ -131,11 +130,11 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
-	public Region getGroupView() {
+	public GroupView getGroupView() {
 		return getValue( GROUP_VIEW );
 	}
 
-	public NetworkDevice setGroupView( Region groupView ) {
+	public NetworkDevice setGroupView( GroupView groupView ) {
 		setValue( GROUP_VIEW, groupView );
 		return this;
 	}

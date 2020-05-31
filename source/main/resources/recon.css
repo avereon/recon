@@ -7,7 +7,7 @@
 	/*-fx-border-insets: 10px;*/
 	/*-fx-border-width: 5px;*/
 
-	-fx-padding: 5;
+	-fx-padding: 5px;
 }
 
 .network-device:focused {
@@ -29,10 +29,16 @@
 	-fx-background-color: -ex-background-text;
 }
 
-.network-group-view {
-	-fx-background-color: -ex-background-text;
+.level-view {
+	-fx-padding: 20px 0 20px 0;
+	-fx-hgap: 5px;
 }
 
-.network-device-connector {
-	-fx-stroke: gray;
+.group-view {
+	-fx-background-color: -ex-background-text;
+	/*-fx-padding: 5px 5px 0 5px;*/
+}
+
+.group-connector {
+	-fx-stroke: -fx-text-base-color;
 }

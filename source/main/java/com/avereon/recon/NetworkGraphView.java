@@ -65,8 +65,8 @@ class NetworkGraphView extends VBox {
 	}
 
 	private void addToRow( HBox row, NetworkDevice device ) {
-		if( row.getChildren().stream().anyMatch( c -> ((NetworkDeviceView)c).getDevice().equals( device ) ) ) return;
-		row.getChildren().add( new NetworkDeviceView( device ) );
+		if( row.getChildren().stream().anyMatch( c -> ((DeviceView)c).getDevice().equals( device ) ) ) return;
+		row.getChildren().add( new DeviceView( device ) );
 	}
 
 	private void removeFromLevel( int level, Collection<NetworkDevice> devices ) {
@@ -74,7 +74,7 @@ class NetworkGraphView extends VBox {
 		if( row == null ) return;
 		row
 			.getChildren()
-			.removeAll( row.getChildren().stream().filter( c -> devices.contains( ((NetworkDeviceView)c).getDevice() ) ).collect( Collectors.toSet() ) );
+			.removeAll( row.getChildren().stream().filter( c -> devices.contains( ((DeviceView)c).getDevice() ) ).collect( Collectors.toSet() ) );
 		removeFromLevel( level + 1, getChildDevices( devices ) );
 	}
 

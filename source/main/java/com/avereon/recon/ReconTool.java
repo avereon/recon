@@ -56,10 +56,6 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
-	boolean isRunning() {
-		return updateTask != null;
-	}
-
 	@Override
 	public synchronized void run() {
 		if( isRunning() ) return;
@@ -75,6 +71,10 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	@Override
 	public void reset() {}
 
+	boolean isRunning() {
+		return updateTask != null;
+	}
+
 	@Override
 	protected void ready( OpenAssetRequest request ) {
 		setTitle( getAsset().getName() );
@@ -85,6 +85,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	@Override
 	protected void open( OpenAssetRequest request ) {
 		networkGraphTree.setNetworkGraph( getGraph() );
+		requestLayout();
 	}
 
 	@Override

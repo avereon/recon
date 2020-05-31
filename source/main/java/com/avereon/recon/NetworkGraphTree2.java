@@ -1,27 +1,20 @@
 package com.avereon.recon;
 
 import com.avereon.util.Log;
-import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
-import javafx.geometry.Orientation;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.CubicCurve;
-import javafx.scene.shape.Shape;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NetworkGraphTree2 extends StackPane {
 
 	private static final System.Logger log = Log.get();
-
-	private static final Paint CONNECTOR_PAINT = Color.GRAY;
 
 	private final Map<Integer, LevelView> levels;
 
@@ -31,12 +24,14 @@ public class NetworkGraphTree2 extends StackPane {
 
 	private final VBox viewPane;
 
+	private final Pane detailPane;
+
 	public NetworkGraphTree2() {
 		levels = new ConcurrentHashMap<>();
-		setStyle( "-fx-background-color: #0000ff40" );
-
 		getChildren().add( connectorPane = new Pane() );
 		getChildren().add( viewPane = new VBox() );
+		getChildren().add( detailPane = new Pane() );
+		detailPane.setVisible( false );
 	}
 
 	void setNetworkGraph( NetworkGraph graph ) {
@@ -54,16 +49,26 @@ public class NetworkGraphTree2 extends StackPane {
 	}
 
 	private void addDevice( NetworkDevice device ) {
-		LevelView level = getLevelView( device.getLevel() );
-		GroupView group = level.getGroupView( device );
-		group.getViews().add( new NetworkDeviceView( device ) );
-		device.setGroupView( group );
+		LevelView levelView = getLevelView( device.getLevel() );
+		GroupView groupView = levelView.getGroupView( device );
+		DeviceView deviceView = new DeviceView( device );
+		groupView.getViews().add( deviceView );
+		device.setGroupView( groupView );
+		detailPane.getChildren().add( deviceView.getDetails() );
 	}
 
 	private void removeDevice( NetworkDevice device ) {
-		LevelView level = getLevelView( device.getLevel() );
-		GroupView group = level.getGroupView( device );
-		group.getViews().removeIf( c -> ((NetworkDeviceView)c).getDevice() == device );
+		LevelView levelView = getLevelView( device.getLevel() );
+		GroupView groupView = levelView.getGroupView( device );
+		Optional<Node> deviceViewOptional = groupView.getViews().stream().filter( c -> ((DeviceView)c).getDevice() == device ).findAny();
+		if( deviceViewOptional.isPresent() ) {
+			DeviceView deviceView = (DeviceView)deviceViewOptional.get();
+			groupView.getViews().remove( deviceView );
+			detailPane.getChildren().remove( deviceView.getDetails() );
+
+			// If the last child in the group, remove the group
+			if( groupView.getChildren().size() == 0 ) levelView.removeGroupView( groupView );
+		}
 	}
 
 	private LevelView getLevelView( int level ) {
@@ -83,9 +88,9 @@ public class NetworkGraphTree2 extends StackPane {
 		private final Map<String, GroupView> groups;
 
 		public LevelView( int level ) {
+			getStyleClass().add( "level-view" );
 			this.level = level;
 			this.groups = new ConcurrentHashMap<>();
-			setStyle( "-fx-padding: 0.5cm 0 0.5cm 0" );
 		}
 
 		public int getLevel() {
@@ -95,108 +100,21 @@ public class NetworkGraphTree2 extends StackPane {
 		public GroupView getGroupView( NetworkDevice device ) {
 			String groupKey = getGroupKey( device );
 			return groups.computeIfAbsent( groupKey, k -> {
-				//log.log( Log.WARN, "Adding group=" + k );
 				GroupView view = new GroupView( k, device.getGroup() );
 				TilePane.setAlignment( view, Pos.CENTER );
-				getChildren().add( view );
 				view.updateOrientation();
-
-				if( !device.isRoot() ) linkGroups( ((NetworkDevice)device.getParent()).getGroupView(), view );
-
+				getChildren().add( view );
+				if( !device.isRoot() ) {
+					view.linkToParent( ((NetworkDevice)device.getParent()).getGroupView() );
+					connectorPane.getChildren().add( view.getConnector() );
+				}
 				return view;
 			} );
 		}
 
-		private void linkGroups( Region parentView, Region childView ) {
-			double offset = 50;
-
-			CubicCurve curve = new CubicCurve();
-			//curve.getStyleClass().addAll( "network-device-connector" );
-			curve.setViewOrder( 2 );
-
-			parentView.localToSceneTransformProperty().addListener( (v,o,n) -> {
-				Bounds parentBounds = parentView.getBoundsInLocal();
-				Point2D parentAnchor = curve.sceneToLocal( parentView.localToScene( parentBounds.getCenterX(), parentBounds.getMaxY() ) );
-				curve.setStartX( parentAnchor.getX() );
-				curve.setStartY( parentAnchor.getY() );
-				curve.setControlX1( parentAnchor.getX() );
-				curve.setControlY1( parentAnchor.getY()+offset );
-			} );
-
-			childView.localToSceneTransformProperty().addListener( (v,o,n) ->{
-				Bounds childBounds = childView.getBoundsInLocal();
-				Point2D childAnchor = curve.sceneToLocal( n.transform( childBounds.getCenterX(), childBounds.getMinY()  ) );
-				curve.setControlX2( childAnchor.getX() );
-				curve.setControlY2( childAnchor.getY()-offset );
-				curve.setEndX( childAnchor.getX() );
-				curve.setEndY( childAnchor.getY() );
-			});
-
-			curve.setStroke( CONNECTOR_PAINT );
-			curve.setFill( null );
-
-			connectorPane.getChildren().add( curve );
-		}
-
-	}
-
-	private static class GroupView extends BorderPane {
-
-		private final String key;
-
-		private final StackPane container;
-
-		private Orientation orientation;
-
-		private Pane box;
-
-		private Shape leader;
-
-		public GroupView( String key, String group ) {
-			this.key = key;
-			this.container = new StackPane();
-			this.orientation = Orientation.VERTICAL;
-			this.container.getChildren().add( box = new VBox() );
-
-			setStyle( "-fx-background-color: #ffff0040" );
-			//setMaxWidth( Double.MAX_VALUE );
-			//setPrefWidth( Double.MAX_VALUE );
-
-			Label label = new Label( group );
-			BorderPane.setAlignment( label, Pos.CENTER );
-			//label.setAlignment( Pos.CENTER );
-			label.setStyle( "-fx-background-color: #80808080" );
-			setTop( label );
-			setCenter( container );
-		}
-
-		public ObservableList<Node> getViews() {
-			return box.getChildren();
-		}
-
-		public String getKey() {
-			return key;
-		}
-
-		public void updateOrientation() {
-			long count = getViews().stream().mapToInt( n -> ((NetworkDeviceView)n).getDevice().getDevices().size() ).count();
-			setOrientation( count > 0 ? Orientation.HORIZONTAL : Orientation.VERTICAL );
-		}
-
-		public void setOrientation( Orientation orientation ) {
-			if( this.orientation == orientation ) return;
-
-			Pane oldBox = box;
-			if( orientation == Orientation.HORIZONTAL ) {
-				box = new HBox();
-			} else {
-				box = new VBox();
-			}
-			box.getChildren().addAll( oldBox.getChildren() );
-			container.getChildren().clear();
-			container.getChildren().add( box );
-
-			this.orientation = orientation;
+		public void removeGroupView( GroupView view ) {
+			getChildren().remove( view );
+			connectorPane.getChildren().remove( view.getConnector() );
 		}
 
 	}

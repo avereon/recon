@@ -20,11 +20,11 @@ public class NetworkGraphTree extends Pane {
 
 	private static final System.Logger log = Log.get();
 
-	private static final double DEVICE_HORIZONTAL_SPACING = 3 * NetworkDeviceView.EXPECTED_STATE_SIZE;
+	private static final double DEVICE_HORIZONTAL_SPACING = 3 * DeviceView.EXPECTED_STATE_SIZE;
 
-	private static final double DEVICE_VERTICAL_SPACING = 5 * NetworkDeviceView.EXPECTED_STATE_SIZE;
+	private static final double DEVICE_VERTICAL_SPACING = 5 * DeviceView.EXPECTED_STATE_SIZE;
 
-	private static final double GROUP_PADDING = NetworkDeviceView.EXPECTED_STATE_SIZE;
+	private static final double GROUP_PADDING = DeviceView.EXPECTED_STATE_SIZE;
 
 	private static final Paint CONNECTOR_PAINT = Color.GRAY;
 
@@ -34,7 +34,7 @@ public class NetworkGraphTree extends Pane {
 
 	private Map<String, Pane> groupViews;
 
-	private Map<NetworkDevice, NetworkDeviceView> views;
+	private Map<NetworkDevice, DeviceView> views;
 
 	public NetworkGraphTree() {
 		levels = new CopyOnWriteArrayList<>();
@@ -70,7 +70,7 @@ public class NetworkGraphTree extends Pane {
 				double maxX = Double.MIN_VALUE;
 				for( NetworkDevice device : devices ) {
 					// Devices
-					NetworkDeviceView view = views.get( device );
+					DeviceView view = views.get( device );
 					if( view == null ) {
 						log.log( Log.WARN, "Missing view for: " + device.getName() );
 						continue;
@@ -158,7 +158,7 @@ public class NetworkGraphTree extends Pane {
 	private void registerDevice( NetworkDevice device ) {
 		views.computeIfAbsent( device, d -> {
 			List<Node> fxNodes = new ArrayList<>();
-			NetworkDeviceView view = new NetworkDeviceView( d );
+			DeviceView view = new DeviceView( d );
 			fxNodes.add( view );
 			fxNodes.add( view.getDetails() );
 
@@ -181,7 +181,7 @@ public class NetworkGraphTree extends Pane {
 			// Add a line from this device to the parent
 			if( !device.isRoot() ) {
 				NetworkDevice parent = device.getParent();
-				NetworkDeviceView parentView = views.get( parent );
+				DeviceView parentView = views.get( parent );
 				if( parentView == null ) log.log( Log.ERROR, "Parent view is null: " + parent.getName() );
 
 				double offset = 0.8 * DEVICE_VERTICAL_SPACING;
