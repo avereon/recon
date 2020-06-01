@@ -24,17 +24,13 @@ public class DeviceDetailView extends VBox {
 		address = new Label( device.getAddress() );
 
 		getStyleClass().add( "network-device-details" );
+		setStyle( "-fx-background-color: #80000040;" );
 		setAlignment( Pos.CENTER_LEFT );
 		getChildren().addAll( group, name, host, address );
-		setVisible( false );
-		setViewOrder( -1 );
+		//setVisible( false );
+		setManaged( false );
+		//setViewOrder( -1 );
 		setFocusTraversable( true );
-		addEventHandler( KeyEvent.KEY_PRESSED, e -> {
-			if( e.getCode() == KeyCode.ESCAPE ) {
-				getParent().setVisible( false );
-				setVisible( false );
-			}
-		} );
 
 		device.register( "group", e -> group.setText( e.getNewValue() ) );
 		device.register( "name", e -> name.setText( e.getNewValue() ) );
@@ -44,6 +40,10 @@ public class DeviceDetailView extends VBox {
 		new FieldInputHandler( group, () -> device.setGroup( group.getText() ) );
 		new FieldInputHandler( name, () -> device.setName( name.getText() ) );
 		new FieldInputHandler( host, () -> device.setHost( host.getText() ) );
+
+		addEventHandler( KeyEvent.KEY_PRESSED, e -> {
+			if( e.getCode() == KeyCode.ESCAPE ) setVisible( false );
+		} );
 	}
 
 	private class FieldInputHandler {

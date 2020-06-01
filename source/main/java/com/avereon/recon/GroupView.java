@@ -72,8 +72,11 @@ public class GroupView extends BorderPane {
 
 		CubicCurve curve = new CubicCurve();
 		curve.getStyleClass().addAll( "group-connector" );
+		curve.setManaged( false );
+		curve.setViewOrder( 2 );
 		curve.setFill( null );
 
+		// The source view is in a different level view so it's a bit more complicated
 		sourceView.localToSceneTransformProperty().addListener( ( v, o, n ) -> {
 			Bounds sourceBounds = sourceView.getLayoutBounds();
 			Point2D sourceAnchor = curve.sceneToLocal( n.transform( sourceBounds.getCenterX(), sourceBounds.getMaxY() ) );
@@ -84,15 +87,12 @@ public class GroupView extends BorderPane {
 		} );
 
 		GroupView targetView = this;
-		targetView.localToSceneTransformProperty().addListener( ( v, o, n ) -> {
-			targetView.requestParentLayout();
-			Bounds targetBounds = targetView.getLayoutBounds();
-			Point2D targetAnchor = curve.sceneToLocal( n.transform( targetBounds.getCenterX(), targetBounds.getMinY() ) );
-			curve.setControlX2( targetAnchor.getX() );
-			curve.setControlY2( targetAnchor.getY() - offset );
-			curve.setEndX( targetAnchor.getX() );
-			curve.setEndY( targetAnchor.getY() );
-		} );
+		targetView.boundsInParentProperty().addListener( (v,o,n) -> {
+			curve.setControlX2( n.getCenterX() );
+			curve.setControlY2( n.getMinY() - offset );
+			curve.setEndX( n.getCenterX() );
+			curve.setEndY( n.getMinY() );
+		});
 
 		targetView.setConnector( curve );
 	}

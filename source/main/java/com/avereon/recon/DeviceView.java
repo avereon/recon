@@ -75,22 +75,24 @@ class DeviceView extends StackPane {
 			}
 		} );
 
-		// NEXT Figure out how to get the details in the right spot
-		localToSceneTransformProperty().addListener( ( v, o, n ) -> {
+		// NEXT Continue work to put the details in the correct location with the correct size
+		boundsInParentProperty().addListener( ( v, o, n ) -> {
 			if( details.getParent() == null ) return;
-			Bounds deviceViewBounds = getLayoutBounds();
-			log.log( Log.WARN, "DV bounds=" + deviceViewBounds );
+			Bounds deviceViewBounds = n;
 			Point2D point = details.getParent().sceneToLocal( localToScene( deviceViewBounds.getMaxX(), deviceViewBounds.getCenterY() ) );
-			details.relocate( point.getX(), point.getY() - 0.5 * details.getHeight() );
+
+			details.resizeRelocate( point.getX(), point.getY() - 0.5 * details.getPrefHeight(),details.getPrefWidth(), details.getPrefHeight() );
+
+			//getDetails().relocate( getBoundsInParent().getMaxX(), getBoundsInParent().getCenterY() - getDetails().getBoundsInLocal().getCenterY() );
+
+			log.log( Log.WARN, "dvd bounds=" + details.getLayoutBounds() );
 		} );
 
 		updateState();
 	}
 
 	private void toggleTheDetails() {
-		boolean visible = !details.isVisible();
-		details.getParent().setVisible( visible );
-		details.setVisible( visible );
+		details.setVisible( !details.isVisible() );
 		if( details.isVisible() ) details.requestFocus();
 	}
 

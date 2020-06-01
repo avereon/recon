@@ -3,8 +3,6 @@ package com.avereon.recon;
 import com.avereon.util.Log;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
@@ -12,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class NetworkGraphTree2 extends StackPane {
+public class NetworkGraphTree2 extends VBox {
 
 	private static final System.Logger log = Log.get();
 
@@ -20,25 +18,15 @@ public class NetworkGraphTree2 extends StackPane {
 
 	private NetworkGraph graph;
 
-	private final Pane connectorPane;
-
-	private final VBox viewPane;
-
-	private final Pane detailPane;
-
 	public NetworkGraphTree2() {
 		levels = new ConcurrentHashMap<>();
-		getChildren().add( connectorPane = new Pane() );
-		getChildren().add( viewPane = new VBox() );
-		getChildren().add( detailPane = new Pane() );
-		detailPane.setVisible( false );
 	}
 
 	void setNetworkGraph( NetworkGraph graph ) {
 		if( this.graph == graph ) return;
 		this.graph = graph;
 
-		viewPane.getChildren().clear();
+		getChildren().clear();
 		levels.clear();
 
 		graph.getRootDevice().walk( this::addDevice );
@@ -54,7 +42,9 @@ public class NetworkGraphTree2 extends StackPane {
 		DeviceView deviceView = new DeviceView( device );
 		groupView.getViews().add( deviceView );
 		device.setGroupView( groupView );
-		detailPane.getChildren().add( deviceView.getDetails() );
+		getChildren().add( deviceView.getDetails() );
+
+		deviceView.getDetails().requestLayout();
 	}
 
 	private void removeDevice( NetworkDevice device ) {
@@ -64,7 +54,7 @@ public class NetworkGraphTree2 extends StackPane {
 		if( deviceViewOptional.isPresent() ) {
 			DeviceView deviceView = (DeviceView)deviceViewOptional.get();
 			groupView.getViews().remove( deviceView );
-			detailPane.getChildren().remove( deviceView.getDetails() );
+			getChildren().remove( deviceView.getDetails() );
 
 			// If the last child in the group, remove the group
 			if( groupView.getChildren().size() == 0 ) levelView.removeGroupView( groupView );
@@ -76,12 +66,12 @@ public class NetworkGraphTree2 extends StackPane {
 			//log.log( Log.WARN, "Adding level=" + l );
 			LevelView view = new LevelView( l );
 			view.setAlignment( Pos.CENTER );
-			viewPane.getChildren().add( view );
+			getChildren().add( view );
 			return view;
 		} );
 	}
 
-	private class LevelView extends TilePane {
+	private static class LevelView extends TilePane {
 
 		private final int level;
 
@@ -106,7 +96,7 @@ public class NetworkGraphTree2 extends StackPane {
 				getChildren().add( view );
 				if( !device.isRoot() ) {
 					view.linkToParent( ((NetworkDevice)device.getParent()).getGroupView() );
-					connectorPane.getChildren().add( view.getConnector() );
+					getChildren().add( view.getConnector() );
 				}
 				return view;
 			} );
@@ -114,7 +104,7 @@ public class NetworkGraphTree2 extends StackPane {
 
 		public void removeGroupView( GroupView view ) {
 			getChildren().remove( view );
-			connectorPane.getChildren().remove( view.getConnector() );
+			getChildren().remove( view.getConnector() );
 		}
 
 	}
