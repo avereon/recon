@@ -47,6 +47,12 @@ public class NetworkGraphTree2 extends VBox {
 		deviceView.getDetails().requestLayout();
 	}
 
+	@Override
+	protected void layoutChildren() {
+		super.layoutChildren();
+		getChildren().stream().filter( n -> n instanceof DeviceDetailView ).forEach( Node::autosize );
+	}
+
 	private void removeDevice( NetworkDevice device ) {
 		LevelView levelView = getLevelView( device.getLevel() );
 		GroupView groupView = levelView.getGroupView( device );

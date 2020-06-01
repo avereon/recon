@@ -9,6 +9,8 @@ import javafx.scene.layout.VBox;
 
 public class DeviceDetailView extends VBox {
 
+	private static final double DEFAULT_WIDTH = 150;
+
 	private final TextField group;
 
 	private final TextField name;
@@ -23,13 +25,13 @@ public class DeviceDetailView extends VBox {
 		host = new TextField( device.getHost() );
 		address = new Label( device.getAddress() );
 
-		getStyleClass().add( "network-device-details" );
-		setStyle( "-fx-background-color: #80000040;" );
+		setPrefWidth( DEFAULT_WIDTH );
+		getStyleClass().add( "device-details" );
 		setAlignment( Pos.CENTER_LEFT );
 		getChildren().addAll( group, name, host, address );
-		//setVisible( false );
+		setVisible( false );
 		setManaged( false );
-		//setViewOrder( -1 );
+		setViewOrder( -1 );
 		setFocusTraversable( true );
 
 		device.register( "group", e -> group.setText( e.getNewValue() ) );

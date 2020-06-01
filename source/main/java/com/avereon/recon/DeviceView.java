@@ -75,20 +75,19 @@ class DeviceView extends StackPane {
 			}
 		} );
 
-		// NEXT Continue work to put the details in the correct location with the correct size
-		boundsInParentProperty().addListener( ( v, o, n ) -> {
-			if( details.getParent() == null ) return;
-			Bounds deviceViewBounds = n;
-			Point2D point = details.getParent().sceneToLocal( localToScene( deviceViewBounds.getMaxX(), deviceViewBounds.getCenterY() ) );
-
-			details.resizeRelocate( point.getX(), point.getY() - 0.5 * details.getPrefHeight(),details.getPrefWidth(), details.getPrefHeight() );
-
-			//getDetails().relocate( getBoundsInParent().getMaxX(), getBoundsInParent().getCenterY() - getDetails().getBoundsInLocal().getCenterY() );
-
-			log.log( Log.WARN, "dvd bounds=" + details.getLayoutBounds() );
-		} );
+		// This one sets the correct initial location
+		boundsInParentProperty().addListener( ( v, o, n ) -> updateDetailsViewLocation() );
+		// This one sets the correct location as the view moves around
+		localToSceneTransformProperty().addListener( ( v, o, n ) -> updateDetailsViewLocation() );
 
 		updateState();
+	}
+
+	private void updateDetailsViewLocation() {
+		if( details.getParent() == null ) return;
+		Bounds bounds = getBoundsInParent();
+		Point2D point = details.getParent().sceneToLocal( getParent().localToScene( bounds.getMaxX(), bounds.getMinY() ) );
+		details.relocate( point.getX(), point.getY() );
 	}
 
 	private void toggleTheDetails() {

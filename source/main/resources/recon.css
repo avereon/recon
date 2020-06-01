@@ -14,19 +14,19 @@
 	-fx-background-color: -ex-background-tags;
 }
 
-.network-device-details {
-	-fx-background-color: -ex-background-note;
+.device-details {
+	-fx-background-color: -ex-background-text;
 	-fx-background-radius: 1.5mm 1.5mm 1.5mm 1.5mm;
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
 }
 
-.network-device-details .text-field {
+.device-details .text-input {
 	-fx-background-color: transparent;
 	-fx-padding: 0;
 }
 
-.network-device-details .text-field:focused {
-	-fx-background-color: -ex-background-text;
+.device-details .text-input:focused {
+	-fx-background-color: -ex-background-tabs;
 }
 
 .level-view {

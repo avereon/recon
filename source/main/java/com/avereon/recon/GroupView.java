@@ -9,9 +9,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.shape.CubicCurve;
-import javafx.scene.shape.Shape;
 
 public class GroupView extends BorderPane {
+
+	private static final double OFFSET = 20;
 
 	private final String key;
 
@@ -21,7 +22,9 @@ public class GroupView extends BorderPane {
 
 	private Pane box;
 
-	private Shape connector;
+	private GroupView dependency;
+
+	private CubicCurve connector;
 
 	public GroupView( String key, String group ) {
 		getStyleClass().add( "group-view" );
@@ -67,42 +70,40 @@ public class GroupView extends BorderPane {
 		requestLayout();
 	}
 
-	public void linkToParent( GroupView sourceView ) {
-		double offset = 40;
+	public void linkToParent( GroupView dependency ) {
+		this.dependency = dependency;
 
 		CubicCurve curve = new CubicCurve();
 		curve.getStyleClass().addAll( "group-connector" );
 		curve.setManaged( false );
 		curve.setViewOrder( 2 );
 		curve.setFill( null );
+		this.connector = curve;
 
-		// The source view is in a different level view so it's a bit more complicated
-		sourceView.localToSceneTransformProperty().addListener( ( v, o, n ) -> {
-			Bounds sourceBounds = sourceView.getLayoutBounds();
-			Point2D sourceAnchor = curve.sceneToLocal( n.transform( sourceBounds.getCenterX(), sourceBounds.getMaxY() ) );
-			curve.setStartX( sourceAnchor.getX() );
-			curve.setStartY( sourceAnchor.getY() );
-			curve.setControlX1( sourceAnchor.getX() );
-			curve.setControlY1( sourceAnchor.getY() + offset );
-		} );
-
-		GroupView targetView = this;
-		targetView.boundsInParentProperty().addListener( (v,o,n) -> {
-			curve.setControlX2( n.getCenterX() );
-			curve.setControlY2( n.getMinY() - offset );
-			curve.setEndX( n.getCenterX() );
-			curve.setEndY( n.getMinY() );
-		});
-
-		targetView.setConnector( curve );
+		// The dependency group is in a different container so it's a bit more complicated
+		dependency.boundsInParentProperty().addListener( ( v, o, n ) -> updateConnectorStart() );
+		boundsInParentProperty().addListener( ( v, o, n ) -> updateConnectorEnd() );
 	}
 
-	public Shape getConnector() {
+	private void updateConnectorStart() {
+		Bounds bounds = dependency.getBoundsInParent();
+		Point2D anchor = connector.sceneToLocal( dependency.getParent().localToScene( bounds.getCenterX(), bounds.getMaxY() ) );
+		connector.setStartX( anchor.getX() );
+		connector.setStartY( anchor.getY() );
+		connector.setControlX1( anchor.getX() );
+		connector.setControlY1( anchor.getY() + OFFSET );
+	}
+
+	private void updateConnectorEnd() {
+		Bounds bounds = getBoundsInParent();
+		connector.setControlX2( bounds.getCenterX() );
+		connector.setControlY2( bounds.getMinY() - OFFSET );
+		connector.setEndX( bounds.getCenterX() );
+		connector.setEndY( bounds.getMinY() );
+	}
+
+	public CubicCurve getConnector() {
 		return connector;
-	}
-
-	public void setConnector( Shape connector ) {
-		this.connector = connector;
 	}
 
 }
