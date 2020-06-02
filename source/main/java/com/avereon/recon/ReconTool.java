@@ -13,6 +13,7 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
+import javafx.scene.control.ScrollPane;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -48,11 +49,10 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 		runPauseAction = new RunPauseAction( getProgram(), this );
 
 		// NOTE Adding the scroller really messes with the focus handling and key events
-//		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
-//		scroller.setFitToHeight( true );
-//		scroller.setFitToWidth( true );
+		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
+		scroller.setFitToWidth( true );
+		getChildren().addAll( scroller );
 
-		getChildren().addAll( networkGraphTree = new NetworkGraphTree() );
 		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
@@ -79,13 +79,12 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	protected void ready( OpenAssetRequest request ) {
 		setTitle( getAsset().getName() );
 		setGraphic( getProgram().getIconLibrary().getIcon( "recon" ) );
-		getGraph().register( NodeEvent.NODE_CHANGED, modelChangeHandler );
 	}
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
 		networkGraphTree.setNetworkGraph( getGraph() );
-		requestLayout();
+		getGraph().register( NodeEvent.NODE_CHANGED, modelChangeHandler );
 	}
 
 	@Override
