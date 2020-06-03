@@ -14,9 +14,9 @@ public class GroupView extends BorderPane {
 
 	private static final double OFFSET = 20;
 
-	private final String key;
+	private static final Pos POS = Pos.TOP_CENTER;
 
-	private final StackPane container;
+	private final String key;
 
 	private Orientation orientation;
 
@@ -30,14 +30,11 @@ public class GroupView extends BorderPane {
 		getStyleClass().add( "group-view" );
 
 		this.key = key;
-		this.container = new StackPane();
-		this.orientation = Orientation.VERTICAL;
-		this.container.getChildren().add( box = new VBox() );
 
 		Label label = new Label( group );
 		BorderPane.setAlignment( label, Pos.CENTER );
 		setTop( label );
-		setCenter( container );
+		setOrientation( Orientation.VERTICAL );
 	}
 
 	public ObservableList<Node> getViews() {
@@ -59,12 +56,15 @@ public class GroupView extends BorderPane {
 		Pane oldBox = box;
 		if( orientation == Orientation.HORIZONTAL ) {
 			box = new HBox();
+			((HBox)box).setFillHeight( false );
+			((HBox)box).setAlignment( POS );
 		} else {
 			box = new VBox();
+			((VBox)box).setFillWidth( false );
+			((VBox)box).setAlignment( POS );
 		}
-		box.getChildren().addAll( oldBox.getChildren() );
-		container.getChildren().clear();
-		container.getChildren().add( box );
+		if( oldBox != null ) box.getChildren().addAll( oldBox.getChildren() );
+		setCenter( box );
 
 		this.orientation = orientation;
 		requestLayout();
