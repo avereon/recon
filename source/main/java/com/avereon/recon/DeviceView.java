@@ -34,20 +34,21 @@ class DeviceView extends StackPane {
 		getStyleClass().addAll( "network-device" );
 
 		expected = new Circle( EXPECTED_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
-		actual = new Circle( ACTUAL_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
-		details = new DeviceDetailView( device );
-
 		expected.getStyleClass().add( "network-device-expected" );
+		expected.setFocusTraversable( true );
+
+		actual = new Circle( ACTUAL_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
+		actual.setMouseTransparent( true );
+
+		details = new DeviceDetailView( device );
 
 		setAlignment( Pos.CENTER );
 		getChildren().addAll( expected, actual );
 
 		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
 
-		actual.setMouseTransparent( true );
-
-		expected.setFocusTraversable( true );
 		expected.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> {
+			log.log( Log.WARN, "mouse pressed" );
 			if( e.getClickCount() >= 2 ) {
 				toggleTheDetails();
 			} else {
