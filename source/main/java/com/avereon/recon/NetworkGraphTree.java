@@ -1,13 +1,13 @@
 package com.avereon.recon;
 
+import com.avereon.data.NodeEvent;
 import com.avereon.util.Log;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NetworkGraphTree extends VBox {
@@ -44,7 +44,17 @@ public class NetworkGraphTree extends VBox {
 		device.setGroupView( groupView );
 		getChildren().add( deviceView.getDetails() );
 
-		deviceView.getDetails().requestLayout();
+		// For adding a new device
+		device.register( NodeEvent.CHILD_ADDED, e -> {
+			if( e.getNode() != device ) return;
+			addDevice( e.getNewValue() );
+		} );
+
+		// For removing the device
+		device.register( NodeEvent.REMOVED, e -> {
+			getChildren().remove( deviceView.getDetails() );
+			groupView.getViews().remove( deviceView );
+		} );
 	}
 
 	@Override
@@ -99,7 +109,13 @@ public class NetworkGraphTree extends VBox {
 				GroupView view = new GroupView( k, device.getGroup() );
 				TilePane.setAlignment( view, Pos.CENTER );
 				view.updateOrientation();
-				getChildren().add( view );
+
+				List<Node> groups = new ArrayList<>(getChildren().filtered( n -> n instanceof GroupView ));
+				groups.add( view );
+				groups.sort( null );
+
+				getChildren().removeAll( groups );
+				getChildren().addAll( groups );
 				if( !device.isRoot() ) {
 					view.linkToParent( ((NetworkDevice)device.getParent()).getGroupView() );
 					getChildren().add( view.getConnector() );

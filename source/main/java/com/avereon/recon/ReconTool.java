@@ -1,7 +1,5 @@
 package com.avereon.recon;
 
-import com.avereon.data.NodeEvent;
-import com.avereon.event.EventHandler;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
@@ -32,13 +30,13 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 
 	private int updateInterval = 20000;
 
-	private int retryCount = 3;
+	private final int retryCount = 3;
 
-	private int retryInterval = 2;
+	private final int retryInterval = 1;
 
-	private TimeUnit retryUnit = TimeUnit.SECONDS;
+	private final TimeUnit retryUnit = TimeUnit.SECONDS;
 
-	private final EventHandler<NodeEvent> modelChangeHandler;
+	//private final EventHandler<NodeEvent> modelChangeHandler;
 
 	public ReconTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -54,7 +52,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 //		networkGraphTree.setFocusTraversable( true );
 //		scroller.setFocusTraversable( true );
 
-		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
+		//modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
 	}
 
 	@Override
@@ -85,7 +83,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	@Override
 	protected void open( OpenAssetRequest request ) {
 		networkGraphTree.setNetworkGraph( getGraph() );
-		getGraph().register( NodeEvent.NODE_CHANGED, modelChangeHandler );
+		//getGraph().register( NodeEvent.NODE_CHANGED, modelChangeHandler );
 	}
 
 	@Override
@@ -103,7 +101,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 
 	@Override
 	protected void deallocate() {
-		getGraph().unregister( NodeEvent.NODE_CHANGED, modelChangeHandler );
+		//getGraph().unregister( NodeEvent.NODE_CHANGED, modelChangeHandler );
 		pause();
 	}
 

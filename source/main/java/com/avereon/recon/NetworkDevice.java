@@ -163,26 +163,33 @@ public class NetworkDevice extends Node {
 	}
 
 	public void updateStatus( int retryCount, int retryDelay, TimeUnit retryUnit ) {
-		int count = 0;
-		while( count < retryCount && !updateStatus() ) {
+		if( System.currentTimeMillis() - lastUpdateTime < maxUpdateRate ) return;
+
+		int count = 1;
+		while( count <= retryCount && !updateStatus( retryCount, count ) ) {
 			ThreadUtil.pause( retryDelay, retryUnit );
 			count++;
 		}
 	}
 
-	public boolean updateStatus() {
-		if( System.currentTimeMillis() - lastUpdateTime < maxUpdateRate ) return true;
+	@Override
+	public String toString() {
+		return getGroup() + "/" + getName();
+	}
 
+	private boolean updateStatus( int attemptLimit, int attemptCount ) {
 		try {
 			setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
 			setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
 
 			if( !isRoot() && ((NetworkDevice)getParent()).getResponse() != DeviceResponse.ONLINE ) {
 				setResponse( DeviceResponse.UNKNOWN );
+				return true;
 			} else if( isReachable( 7, 22, 443, 3389 ) ) {
 				setResponse( DeviceResponse.ONLINE );
+				return true;
 			} else {
-				setResponse( DeviceResponse.OFFLINE );
+				if( attemptCount == attemptLimit ) setResponse( DeviceResponse.OFFLINE );
 			}
 		} catch( IOException exception ) {
 			log.log( Log.DEBUG, exception );
@@ -191,7 +198,7 @@ public class NetworkDevice extends Node {
 			lastUpdateTime = System.currentTimeMillis();
 		}
 
-		return true;
+		return false;
 	}
 
 	public Collection<NetworkDevice> getDevices() {
@@ -230,7 +237,7 @@ public class NetworkDevice extends Node {
 	}
 
 	private boolean isReachable( int... ports ) throws IOException {
-		int timeout = 200;
+		int timeout = 250;
 		InetAddress address = InetAddress.getByName( getHost() );
 
 		try {

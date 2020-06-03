@@ -10,13 +10,15 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.shape.CubicCurve;
 
-public class GroupView extends BorderPane {
+public class GroupView extends BorderPane implements Comparable<GroupView> {
 
 	private static final double OFFSET = 20;
 
 	private static final Pos POS = Pos.TOP_CENTER;
 
 	private final String key;
+
+	private final String name;
 
 	private Orientation orientation;
 
@@ -30,6 +32,7 @@ public class GroupView extends BorderPane {
 		getStyleClass().add( "group-view" );
 
 		this.key = key;
+		this.name = group;
 
 		Label label = new Label( group );
 		BorderPane.setAlignment( label, Pos.CENTER );
@@ -104,6 +107,11 @@ public class GroupView extends BorderPane {
 
 	public CubicCurve getConnector() {
 		return connector;
+	}
+
+	@Override
+	public int compareTo( GroupView that ) {
+		return this.name.compareTo( that.name );
 	}
 
 }

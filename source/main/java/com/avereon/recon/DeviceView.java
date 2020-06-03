@@ -48,7 +48,7 @@ class DeviceView extends StackPane {
 		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
 
 		expected.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> {
-			log.log( Log.WARN, "mouse pressed" );
+			//log.log( Log.WARN, "mouse pressed" );
 			if( e.getClickCount() >= 2 ) {
 				toggleTheDetails();
 			} else {
@@ -59,7 +59,13 @@ class DeviceView extends StackPane {
 			log.log( Log.WARN, e.getCode() + " pressed" );
 			switch( e.getCode() ) {
 				case INSERT: {
-					getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );
+					if( e.isShiftDown() ) {
+						getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "<host>" ) );
+					} else {
+						NetworkDevice peer = getDevice();
+						NetworkDevice parent = peer.getParent();
+						parent.addDevice( new NetworkDevice().setGroup( peer.getGroup() ).setName( "New Device" ).setHost( "<host>" ) );
+					}
 					break;
 				}
 				case DELETE: {
@@ -87,7 +93,7 @@ class DeviceView extends StackPane {
 	}
 
 	private void updateDetailsViewLocation() {
-		if( details.getParent() == null ) return;
+		if( getParent() == null || details.getParent() == null ) return;
 		Bounds bounds = getBoundsInParent();
 		Point2D point = details.getParent().sceneToLocal( getParent().localToScene( bounds.getMaxX(), bounds.getMinY() ) );
 		details.relocate( point.getX(), point.getY() );
