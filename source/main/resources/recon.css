@@ -14,6 +14,14 @@
 	-fx-background-color: -ex-background-tags;
 }
 
+.network-device-expected {
+	-fx-stroke: transparent;
+}
+
+.network-device-expected:focused {
+	-fx-stroke: -fx-focus-color;
+}
+
 .device-details {
 	-fx-background-color: -ex-background-text;
 	-fx-background-radius: 1.5mm 1.5mm 1.5mm 1.5mm;

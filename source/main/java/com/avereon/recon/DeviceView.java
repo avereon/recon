@@ -37,6 +37,8 @@ class DeviceView extends StackPane {
 		actual = new Circle( ACTUAL_STATE_SIZE, DeviceResponse.UNKNOWN.getPaint() );
 		details = new DeviceDetailView( device );
 
+		expected.getStyleClass().add( "network-device-expected" );
+
 		setAlignment( Pos.CENTER );
 		getChildren().addAll( expected, actual );
 
@@ -52,8 +54,8 @@ class DeviceView extends StackPane {
 				expected.requestFocus();
 			}
 		} );
-		expected.addEventHandler( KeyEvent.KEY_PRESSED, e -> {
-			//log.log( Log.WARN, e.getCode() + " pressed" );
+		expected.addEventFilter( KeyEvent.KEY_PRESSED, e -> {
+			log.log( Log.WARN, e.getCode() + " pressed" );
 			switch( e.getCode() ) {
 				case INSERT: {
 					getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "unknown" ) );

@@ -13,7 +13,6 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import javafx.scene.control.ScrollPane;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -49,9 +48,11 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 		runPauseAction = new RunPauseAction( getProgram(), this );
 
 		// NOTE Adding the scroller really messes with the focus handling and key events
-		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
-		scroller.setFitToWidth( true );
-		getChildren().addAll( scroller );
+//		ScrollPane scroller = new ScrollPane( networkGraphTree = new NetworkGraphTree() );
+//		scroller.setFitToWidth( true );
+		getChildren().addAll( networkGraphTree = new NetworkGraphTree() );
+//		networkGraphTree.setFocusTraversable( true );
+//		scroller.setFocusTraversable( true );
 
 		modelChangeHandler = e -> networkGraphTree.setNetworkGraph( getGraph() );
 	}
