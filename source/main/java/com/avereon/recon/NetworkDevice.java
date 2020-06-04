@@ -185,11 +185,16 @@ public class NetworkDevice extends Node {
 			if( !isRoot() && ((NetworkDevice)getParent()).getResponse() != DeviceResponse.ONLINE ) {
 				setResponse( DeviceResponse.UNKNOWN );
 				return true;
-			} else if( isReachable( 7, 22, 443, 3389 ) ) {
-				setResponse( DeviceResponse.ONLINE );
-				return true;
-			} else {
-				if( attemptCount == attemptLimit ) setResponse( DeviceResponse.OFFLINE );
+			} else{
+				boolean online = isReachable( 7, 22, 443, 3389 );
+				DeviceResponse response = online? DeviceResponse.ONLINE : DeviceResponse.OFFLINE;
+
+				if( response == getExpected() ) {
+					setResponse( response );
+					return true;
+				} else {
+					if( attemptCount == attemptLimit ) setResponse( response );
+				}
 			}
 		} catch( IOException exception ) {
 			log.log( Log.DEBUG, exception );
@@ -251,9 +256,9 @@ public class NetworkDevice extends Node {
 				socket.connect( new InetSocketAddress( address, port ), timeout );
 				return true;
 			} catch( SocketTimeoutException exception ) {
-				log.log( Log.INFO, this + " connection timeout" );
+				log.log( Log.DEBUG, this + " connection timeout" );
 			} catch( ConnectException exception ) {
-				log.log( Log.INFO, this + " " + exception.getMessage().toLowerCase() );
+				log.log( Log.WARN, this + " " + exception.getMessage().toLowerCase() );
 			}
 		}
 		return false;
