@@ -20,25 +20,27 @@ public class NetworkDevice extends Node {
 
 	private static final String TYPE = "type";
 
-	private static final String NAME = "name";
+	public static final String GROUP = "group";
 
-	private static final String HOST = "host";
+	public static final String NAME = "name";
 
-	private static final String IPV4 = "ipv4";
+	public static final String HOST = "host";
 
-	private static final String IPV6 = "ipv6";
+	public static final String IPV4 = "ipv4";
+
+	public static final String IPV6 = "ipv6";
 
 	private static final String EXPECTED = "expected";
 
 	private static final String RESPONSE = "response";
-
-	private static final String GROUP = "group";
 
 	private static final String ROOT = "root";
 
 	private static final String CONNECTOR = "connector";
 
 	private static final String GROUP_VIEW = "group-view";
+
+	public static final String MESSAGE = "message";
 
 	private long maxUpdateRate = 2500;
 
@@ -52,6 +54,7 @@ public class NetworkDevice extends Node {
 		setGroup( "default" );
 		setExpected( DeviceResponse.ONLINE );
 		setResponse( DeviceResponse.UNKNOWN );
+		setMessage( DeviceResponse.UNKNOWN.name() );
 	}
 
 	public String getId() {
@@ -130,6 +133,15 @@ public class NetworkDevice extends Node {
 		return this;
 	}
 
+	public String getMessage() {
+		return getValue( MESSAGE );
+	}
+
+	public NetworkDevice setMessage( String message ) {
+		setValue( MESSAGE, message );
+		return this;
+	}
+
 	public GroupView getGroupView() {
 		return getValue( GROUP_VIEW );
 	}
@@ -179,18 +191,25 @@ public class NetworkDevice extends Node {
 
 	private boolean updateStatus( int attemptLimit, int attemptCount ) {
 		try {
-			setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
-			setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
-
 			if( !isRoot() && ((NetworkDevice)getParent()).getResponse() != DeviceResponse.ONLINE ) {
 				setResponse( DeviceResponse.UNKNOWN );
 				return true;
-			} else{
+			} else {
 				boolean online = isReachable( 7, 22, 443, 3389 );
-				DeviceResponse response = online? DeviceResponse.ONLINE : DeviceResponse.OFFLINE;
+				DeviceResponse response = online ? DeviceResponse.ONLINE : DeviceResponse.OFFLINE;
+
+				if( online ) {
+					try {
+						setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
+						setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
+					} catch( UnknownHostException exception ) {
+						// Intentionally ignore exception
+					}
+				}
 
 				if( response == getExpected() ) {
 					setResponse( response );
+					setMessage( response.name() );
 					return true;
 				} else {
 					if( attemptCount == attemptLimit ) setResponse( response );
@@ -243,24 +262,36 @@ public class NetworkDevice extends Node {
 
 	private boolean isReachable( int... ports ) throws IOException {
 		int timeout = 250;
-		InetAddress address = InetAddress.getByName( getHost() );
-
 		try {
-			if( address.isReachable( timeout ) ) return true;
-		} catch( IOException exception ) {
-			if( ports.length == 0 ) throw exception;
+			InetAddress address = InetAddress.getByName( getHost() );
+
+			try {
+				if( address.isReachable( timeout ) ) return true;
+			} catch( IOException exception ) {
+				if( ports.length == 0 ) {
+					setMessage( exception.getMessage().toLowerCase() );
+					throw exception;
+				}
+			}
+
+			for( int port : ports ) {
+				try( Socket socket = new Socket() ) {
+					socket.connect( new InetSocketAddress( address, port ), timeout );
+					setMessage( "connected" );
+					return true;
+				} catch( SocketTimeoutException exception ) {
+					log.log( Log.DEBUG, this + " connection timeout" );
+					setMessage( "connection timeout" );
+				} catch( ConnectException exception ) {
+					log.log( Log.WARN, this + " " + exception.getMessage().toLowerCase() );
+					setMessage( exception.getMessage().toLowerCase() );
+				}
+			}
+		} catch( UnknownHostException exception ) {
+			log.log( Log.DEBUG, this + " unknown host" );
+			setMessage( "unknown host" );
 		}
 
-		for( int port : ports ) {
-			try( Socket socket = new Socket() ) {
-				socket.connect( new InetSocketAddress( address, port ), timeout );
-				return true;
-			} catch( SocketTimeoutException exception ) {
-				log.log( Log.DEBUG, this + " connection timeout" );
-			} catch( ConnectException exception ) {
-				log.log( Log.WARN, this + " " + exception.getMessage().toLowerCase() );
-			}
-		}
 		return false;
 	}
 

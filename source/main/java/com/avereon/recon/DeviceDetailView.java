@@ -1,5 +1,7 @@
 package com.avereon.recon;
 
+import com.avereon.util.Log;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -8,6 +10,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 
 public class DeviceDetailView extends VBox {
+
+	private static final System.Logger log = Log.get();
 
 	private static final double DEFAULT_WIDTH = 150;
 
@@ -19,25 +23,32 @@ public class DeviceDetailView extends VBox {
 
 	private final Label address;
 
+	private final Label message;
+
 	public DeviceDetailView( NetworkDevice device ) {
 		group = new TextField( device.getGroup() );
 		name = new TextField( device.getName() );
 		host = new TextField( device.getHost() );
 		address = new Label( device.getAddress() );
+		message = new Label( device.getMessage() );
 
 		setPrefWidth( DEFAULT_WIDTH );
 		getStyleClass().add( "device-details" );
 		setAlignment( Pos.CENTER_LEFT );
-		getChildren().addAll( group, name, host, address );
+		getChildren().addAll( group, name, host, address, message );
 		setVisible( false );
 		setManaged( false );
 		setViewOrder( -1 );
 		setFocusTraversable( true );
 
-		device.register( "group", e -> group.setText( e.getNewValue() ) );
-		device.register( "name", e -> name.setText( e.getNewValue() ) );
-		device.register( "host", e -> host.setText( e.getNewValue() ) );
-		device.register( "address", e -> address.setText( e.getNewValue() ) );
+		device.register( NetworkDevice.GROUP, e -> group.setText( e.getNewValue() ) );
+		device.register( NetworkDevice.NAME, e -> name.setText( e.getNewValue() ) );
+		device.register( NetworkDevice.HOST, e -> host.setText( e.getNewValue() ) );
+		device.register( NetworkDevice.IPV4, e -> address.setText( e.getNewValue() ) );
+		device.register( NetworkDevice.MESSAGE, e -> {
+			log.log( Log.WARN, "Recived message=" + e.getNewValue() );
+			Platform.runLater( () -> message.setText( e.getNewValue() ) );
+		} );
 
 		new FieldInputHandler( group, () -> device.setGroup( group.getText() ) );
 		new FieldInputHandler( name, () -> device.setName( name.getText() ) );
