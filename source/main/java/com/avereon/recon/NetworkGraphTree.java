@@ -41,6 +41,7 @@ public class NetworkGraphTree extends VBox {
 		GroupView groupView = levelView.getGroupView( device );
 		DeviceView deviceView = new DeviceView( device );
 		groupView.getViews().add( deviceView );
+		groupView.updateOrientation();
 		device.setGroupView( groupView );
 		getChildren().add( deviceView.getDetails() );
 
@@ -108,7 +109,6 @@ public class NetworkGraphTree extends VBox {
 			return groups.computeIfAbsent( groupKey, k -> {
 				GroupView view = new GroupView( k, device.getGroup() );
 				TilePane.setAlignment( view, Pos.CENTER );
-				view.updateOrientation();
 
 				List<Node> groups = new ArrayList<>(getChildren().filtered( n -> n instanceof GroupView ));
 				groups.add( view );

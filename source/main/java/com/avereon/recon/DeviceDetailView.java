@@ -1,7 +1,7 @@
 package com.avereon.recon;
 
 import com.avereon.util.Log;
-import javafx.application.Platform;
+import com.avereon.venza.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -41,14 +41,11 @@ public class DeviceDetailView extends VBox {
 		setViewOrder( -1 );
 		setFocusTraversable( true );
 
-		device.register( NetworkDevice.GROUP, e -> group.setText( e.getNewValue() ) );
-		device.register( NetworkDevice.NAME, e -> name.setText( e.getNewValue() ) );
-		device.register( NetworkDevice.HOST, e -> host.setText( e.getNewValue() ) );
-		device.register( NetworkDevice.IPV4, e -> address.setText( e.getNewValue() ) );
-		device.register( NetworkDevice.MESSAGE, e -> {
-			log.log( Log.WARN, "Recived message=" + e.getNewValue() );
-			Platform.runLater( () -> message.setText( e.getNewValue() ) );
-		} );
+		device.register( NetworkDevice.GROUP, e -> Fx.run( () -> group.setText( e.getNewValue() ) ) );
+		device.register( NetworkDevice.NAME, e -> Fx.run( () -> name.setText( e.getNewValue() ) ) );
+		device.register( NetworkDevice.HOST, e -> Fx.run( () -> host.setText( e.getNewValue() ) ) );
+		device.register( NetworkDevice.IPV4, e -> Fx.run( () -> address.setText( e.getNewValue() ) ) );
+		device.register( NetworkDevice.MESSAGE, e -> Fx.run( () -> message.setText( e.getNewValue() ) ) );
 
 		new FieldInputHandler( group, () -> device.setGroup( group.getText() ) );
 		new FieldInputHandler( name, () -> device.setName( name.getText() ) );

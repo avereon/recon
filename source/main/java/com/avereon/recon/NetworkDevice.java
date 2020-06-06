@@ -201,7 +201,7 @@ public class NetworkDevice extends Node {
 				if( online ) {
 					try {
 						setIpv6Address( Inet6Address.getByName( getHost() ).getHostAddress() );
-						setIpv6Address( Inet4Address.getByName( getHost() ).getHostAddress() );
+						setIpv4Address( Inet4Address.getByName( getHost() ).getHostAddress() );
 					} catch( UnknownHostException exception ) {
 						// Intentionally ignore exception
 					}

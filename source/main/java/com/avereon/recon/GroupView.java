@@ -1,16 +1,21 @@
 package com.avereon.recon;
 
+import com.avereon.util.Log;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
-import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.CubicCurve;
 
 public class GroupView extends BorderPane implements Comparable<GroupView> {
+
+	private static final System.Logger log = Log.get();
 
 	private static final double OFFSET = 20;
 
@@ -19,8 +24,6 @@ public class GroupView extends BorderPane implements Comparable<GroupView> {
 	private final String key;
 
 	private final String name;
-
-	private Orientation orientation;
 
 	private Pane box;
 
@@ -37,7 +40,7 @@ public class GroupView extends BorderPane implements Comparable<GroupView> {
 		Label label = new Label( group );
 		BorderPane.setAlignment( label, Pos.CENTER );
 		setTop( label );
-		setOrientation( Orientation.VERTICAL );
+		updateOrientation();
 	}
 
 	public ObservableList<Node> getViews() {
@@ -49,28 +52,22 @@ public class GroupView extends BorderPane implements Comparable<GroupView> {
 	}
 
 	public void updateOrientation() {
-		long count = getViews().stream().mapToInt( n -> ((DeviceView)n).getDevice().getDevices().size() ).count();
-		setOrientation( count > 0 ? Orientation.HORIZONTAL : Orientation.VERTICAL );
-	}
-
-	private void setOrientation( Orientation orientation ) {
-		if( this.orientation == orientation ) return;
-
+		long count = 0;
 		Pane oldBox = box;
-		if( orientation == Orientation.HORIZONTAL ) {
-			box = new HBox();
-			((HBox)box).setFillHeight( false );
-			((HBox)box).setAlignment( POS );
-		} else {
+		if( oldBox != null ) count = oldBox.getChildren().stream().mapToInt( n -> ((DeviceView)n).getDevice().getDevices().size() ).sum();
+
+		if( count == 0 ) {
 			box = new VBox();
 			((VBox)box).setFillWidth( false );
 			((VBox)box).setAlignment( POS );
+		} else {
+			box = new HBox();
+			((HBox)box).setFillHeight( false );
+			((HBox)box).setAlignment( POS );
 		}
+
 		if( oldBox != null ) box.getChildren().addAll( oldBox.getChildren() );
 		setCenter( box );
-
-		this.orientation = orientation;
-		requestLayout();
 	}
 
 	public void linkToParent( GroupView dependency ) {
