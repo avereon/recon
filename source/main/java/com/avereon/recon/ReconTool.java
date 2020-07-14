@@ -41,7 +41,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	public ReconTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 
-		getStylesheets().add( Objects.requireNonNull( product.getClassLoader().getResource( "recon.css" ) ).toExternalForm() );
+		addStylesheet( "recon.css" );
 
 		runPauseAction = new RunPauseAction( getProgram(), this );
 
