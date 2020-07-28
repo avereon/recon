@@ -1,7 +1,7 @@
 package com.avereon.recon;
 
 import com.avereon.util.Log;
-import com.avereon.venza.javafx.Fx;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
