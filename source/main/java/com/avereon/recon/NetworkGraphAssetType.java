@@ -18,7 +18,7 @@ public class NetworkGraphAssetType extends AssetType {
 	}
 
 	@Override
-	public boolean assetInit( Program program, Asset asset ) {
+	public boolean assetOpen( Program program, Asset asset ) {
 		asset.setModel( new NetworkGraph() );
 		return true;
 	}
