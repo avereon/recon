@@ -45,7 +45,7 @@ class DeviceView extends StackPane {
 		setAlignment( Pos.CENTER );
 		getChildren().addAll( expected, actual );
 
-		device.register( NodeEvent.ANY, e -> Platform.runLater( this::updateState ) );
+		device.register( NodeEvent.ANY, e -> Fx.run( this::updateState ) );
 
 		expected.addEventHandler( MouseEvent.MOUSE_PRESSED, e -> {
 			//log.log( Log.WARN, "mouse pressed" );
