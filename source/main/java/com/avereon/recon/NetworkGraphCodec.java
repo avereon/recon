@@ -2,6 +2,7 @@ package com.avereon.recon;
 
 import com.avereon.data.Node;
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
@@ -39,7 +40,7 @@ public class NetworkGraphCodec extends Codec {
 
 	@Override
 	public String getName() {
-		return product.rb().text( "asset", "codec-netgraph-name" );
+		return Rb.text( "asset", "codec-netgraph-name" );
 	}
 
 	@Override

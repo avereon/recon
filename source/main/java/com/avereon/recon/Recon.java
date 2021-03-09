@@ -19,7 +19,7 @@ public class Recon extends Mod {
 		registerAssetType( networkGraphAssetType = new NetworkGraphAssetType( this ) );
 		registerTool( networkGraphAssetType, new ToolRegistration( this, ReconTool.class ) );
 
-		registerAction( this.rb(), "runpause" );
+		registerAction( this, "runpause" );
 	}
 
 	@Override
