@@ -93,13 +93,13 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	@Override
 	protected void activate() {
 		pushAction( "runpause", runPauseAction );
-		pushToolActions( "runpause" );
+		pushTools( "runpause" );
 		if( getAsset().isLoaded() ) runPauseAction.setState( isRunning() ? "pause" : "run" );
 	}
 
 	@Override
 	protected void conceal() {
-		pullToolActions();
+		pullTools();
 		pullAction( "runpause", runPauseAction );
 	}
 
