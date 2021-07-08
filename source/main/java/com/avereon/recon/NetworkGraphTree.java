@@ -1,18 +1,20 @@
 package com.avereon.recon;
 
 import com.avereon.data.NodeEvent;
-import com.avereon.util.Log;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import lombok.CustomLog;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@CustomLog
 public class NetworkGraphTree extends VBox {
-
-	private static final System.Logger log = Log.get();
 
 	private final Map<Integer, LevelView> levels;
 

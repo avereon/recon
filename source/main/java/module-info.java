@@ -1,5 +1,9 @@
 module com.avereon.recon {
 
+	// Compile-time only
+	requires static lombok;
+
+	// Both compile-time and run-time
 	requires com.avereon.xenon;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;

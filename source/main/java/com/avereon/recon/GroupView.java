@@ -1,6 +1,5 @@
 package com.avereon.recon;
 
-import com.avereon.util.Log;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -12,10 +11,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.CubicCurve;
+import lombok.CustomLog;
 
+@CustomLog
 public class GroupView extends BorderPane implements Comparable<GroupView> {
-
-	private static final System.Logger log = Log.get();
 
 	private static final double OFFSET = 20;
 

@@ -2,7 +2,6 @@ package com.avereon.recon;
 
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
-import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -12,6 +11,7 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
+import lombok.CustomLog;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,9 +20,8 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@CustomLog
 public class ReconTool extends ProgramTool implements RunPauseResettable {
-
-	private static final System.Logger log = Log.get();
 
 	private static final Timer timer = new Timer( true );
 
@@ -142,7 +141,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 				try {
 					t.get();
 				} catch( Exception exception ) {
-					log.log( Log.ERROR, exception );
+					log.atError( exception ).log();
 				}
 			} );
 		}

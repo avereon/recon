@@ -1,12 +1,11 @@
 package com.avereon.recon;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Mod;
 import com.avereon.xenon.ToolRegistration;
+import lombok.CustomLog;
 
+@CustomLog
 public class Recon extends Mod {
-
-	private static final System.Logger log = Log.get();
 
 	private NetworkGraphAssetType networkGraphAssetType;
 

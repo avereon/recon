@@ -1,9 +1,9 @@
 package com.avereon.recon;
 
 import com.avereon.data.Node;
-import com.avereon.util.Log;
 import com.avereon.util.ThreadUtil;
 import javafx.scene.shape.Shape;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.net.*;
@@ -12,9 +12,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+@CustomLog
 public class NetworkDevice extends Node {
-
-	private static final System.Logger log = Log.get();
 
 	private static final String ID = "id";
 
@@ -216,7 +215,7 @@ public class NetworkDevice extends Node {
 				}
 			}
 		} catch( IOException exception ) {
-			log.log( Log.DEBUG, exception );
+			log.atDebug().withCause( exception ).log();
 			return false;
 		} finally {
 			lastUpdateTime = System.currentTimeMillis();
@@ -280,15 +279,15 @@ public class NetworkDevice extends Node {
 					setMessage( "connected" );
 					return true;
 				} catch( SocketTimeoutException exception ) {
-					log.log( Log.DEBUG, this + " connection timeout" );
+					log.atDebug().log( "%s connection timeout", this );
 					setMessage( "connection timeout" );
 				} catch( ConnectException exception ) {
-					log.log( Log.WARN, this + " " + exception.getMessage().toLowerCase() );
+					log.atWarn().log( "%s %s", this, exception.getMessage().toLowerCase() );
 					setMessage( exception.getMessage().toLowerCase() );
 				}
 			}
 		} catch( UnknownHostException exception ) {
-			log.log( Log.DEBUG, this + " unknown host" );
+			log.atDebug().log( "%s unknown host", this );
 			setMessage( "unknown host" );
 		}
 

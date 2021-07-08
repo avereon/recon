@@ -3,7 +3,6 @@ package com.avereon.recon;
 import com.avereon.data.Node;
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -11,6 +10,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import lombok.CustomLog;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,11 +19,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+@CustomLog
 public class NetworkGraphCodec extends Codec {
 
 	static final String MEDIA_TYPE = "application/vnd.avereon.recon.network.graph";
-
-	private static final System.Logger log = Log.get();
 
 	private final Product product;
 

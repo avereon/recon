@@ -1,6 +1,5 @@
 package com.avereon.recon;
 
-import com.avereon.util.Log;
 import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -8,10 +7,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import lombok.CustomLog;
 
+@CustomLog
 public class DeviceDetailView extends VBox {
-
-	private static final System.Logger log = Log.get();
 
 	private static final double DEFAULT_WIDTH = 150;
 

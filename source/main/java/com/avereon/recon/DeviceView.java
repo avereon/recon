@@ -1,7 +1,7 @@
 package com.avereon.recon;
 
 import com.avereon.data.NodeEvent;
-import com.avereon.util.Log;
+import com.avereon.log.LazyEval;
 import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -11,10 +11,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import lombok.CustomLog;
 
+@CustomLog
 class DeviceView extends StackPane {
-
-	private static final System.Logger log = Log.get();
 
 	static final double EXPECTED_STATE_SIZE = 10;
 
@@ -56,9 +56,9 @@ class DeviceView extends StackPane {
 			}
 		} );
 		expected.addEventFilter( KeyEvent.KEY_PRESSED, e -> {
-			log.log( Log.WARN, e.getCode() + " pressed" );
+			log.atWarn().log( "%s pressed", LazyEval.of( e::getCode ) );
 			switch( e.getCode() ) {
-				case INSERT: {
+				case INSERT -> {
 					if( e.isShiftDown() ) {
 						getDevice().addDevice( new NetworkDevice().setName( "New Device" ).setHost( "<host>" ) );
 					} else {
@@ -66,21 +66,13 @@ class DeviceView extends StackPane {
 						NetworkDevice parent = peer.getParent();
 						parent.addDevice( new NetworkDevice().setGroup( peer.getGroup() ).setName( "New Device" ).setHost( "<host>" ) );
 					}
-					break;
 				}
-				case DELETE: {
+				case DELETE -> {
 					com.avereon.data.Node parent = getDevice().getParent();
 					if( parent != null && !(parent instanceof NetworkGraph) ) ((NetworkDevice)parent).removeDevice( device );
-					break;
 				}
-				case DIGIT0: {
-					getDevice().setExpected( DeviceResponse.OFFLINE );
-					break;
-				}
-				case DIGIT1: {
-					getDevice().setExpected( DeviceResponse.ONLINE );
-					break;
-				}
+				case DIGIT0 -> getDevice().setExpected( DeviceResponse.OFFLINE );
+				case DIGIT1 -> getDevice().setExpected( DeviceResponse.ONLINE );
 			}
 		} );
 
