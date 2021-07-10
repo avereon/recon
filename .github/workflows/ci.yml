@@ -1,4 +1,4 @@
-name: Avereon Recon Continuous
+name: CI
 
 on:
   push:
