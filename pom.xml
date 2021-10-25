@@ -38,6 +38,7 @@
 	</pluginRepositories>
 
 	<properties>
+		<cameo.version>2.9</cameo.version>
 		<images-folder>target/main/images</images-folder>
 	</properties>
 
@@ -68,6 +69,7 @@
 					<plugin>
 						<groupId>com.avereon</groupId>
 						<artifactId>cameo</artifactId>
+						<version>${cameo.version}</version>
 						<executions>
 							<execution>
 								<id>render</id>
