@@ -2,7 +2,7 @@ package com.avereon.recon;
 
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
-import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.action.common.RunPauseAction;
@@ -130,7 +130,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	}
 
 	private void requestUpdates() {
-		String label = Rb.text( BundleKey.LABEL, "update-network-device-status" );
+		String label = Rb.text( RbKey.LABEL, "update-network-device-status" );
 		int count = getLevelCount();
 		TaskManager manager = getProgram().getTaskManager();
 		for( int level = 0; level <= count; level++ ) {
