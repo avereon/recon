@@ -2,18 +2,16 @@ package com.avereon.recon;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NetworkGraphTest {
 
 	@Test
-	void testNetworkGraph() throws Exception {
+	void testNetworkGraph() {
 		NetworkGraph graph = new NetworkGraph();
-		assertThat( graph.getRootDevice().getName(), is( "This Computer" ) );
-		assertNull( graph.getRootDevice().getIpv6Address() );
-		assertNull( graph.getRootDevice().getIpv4Address() );
+		assertThat( graph.getRootDevice().getName() ).isEqualTo( "This Computer" );
+		assertThat( graph.getRootDevice().getIpv6Address() ).isNull();
+		assertThat( graph.getRootDevice().getIpv4Address() ).isNull();
 	}
 
 }
