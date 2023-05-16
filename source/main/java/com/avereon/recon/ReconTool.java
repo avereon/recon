@@ -3,7 +3,6 @@ package com.avereon.recon;
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.xenon.RbKey;
-import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.action.common.RunPauseAction;
 import com.avereon.xenon.asset.Asset;
