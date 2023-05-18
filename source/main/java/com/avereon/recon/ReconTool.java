@@ -4,6 +4,7 @@ import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.action.common.RunPauseAction;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -40,7 +41,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 
 	//private final EventHandler<NodeEvent> modelChangeHandler;
 
-	public ReconTool( ProgramProduct product, Asset asset ) {
+	public ReconTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 
 		addStylesheet( "recon.css" );
