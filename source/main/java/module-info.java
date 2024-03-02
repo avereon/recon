@@ -1,3 +1,5 @@
+import com.avereon.xenon.Module;
+
 module com.avereon.recon {
 
 	// Compile-time only
@@ -9,6 +11,6 @@ module com.avereon.recon {
 	requires com.fasterxml.jackson.databind;
 	opens com.avereon.recon.bundles;
 	exports com.avereon.recon to com.avereon.xenon, com.avereon.zarra;
-	provides com.avereon.xenon.Mod with com.avereon.recon.Recon;
+	provides Module with com.avereon.recon.Recon;
 
 }

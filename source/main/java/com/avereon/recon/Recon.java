@@ -1,11 +1,11 @@
 package com.avereon.recon;
 
-import com.avereon.xenon.Mod;
+import com.avereon.xenon.Module;
 import com.avereon.xenon.ToolRegistration;
 import lombok.CustomLog;
 
 @CustomLog
-public class Recon extends Mod {
+public class Recon extends Module {
 
 	private NetworkGraphAssetType networkGraphAssetType;
 
