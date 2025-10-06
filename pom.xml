@@ -38,12 +38,10 @@
 	</pluginRepositories>
 
 	<properties>
+		<xenon.version>1.10-SNAPSHOT</xenon.version>
 		<cameo.version>2.12</cameo.version>
 		<images-folder>target/main/images</images-folder>
 	</properties>
-
-	<dependencies>
-	</dependencies>
 
 	<build>
 		<plugins>
