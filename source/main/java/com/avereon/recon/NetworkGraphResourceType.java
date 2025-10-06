@@ -3,11 +3,11 @@ package com.avereon.recon;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 
-public class NetworkGraphAssetType extends AssetType {
+public class NetworkGraphResourceType extends ResourceType {
 
-	public NetworkGraphAssetType( XenonProgramProduct product ) {
+	public NetworkGraphResourceType( XenonProgramProduct product ) {
 		super( product, "recon" );
 		setDefaultCodec( new NetworkGraphCodec( product ) );
 	}

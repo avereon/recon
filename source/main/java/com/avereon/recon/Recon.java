@@ -7,7 +7,7 @@ import lombok.CustomLog;
 @CustomLog
 public class Recon extends Module {
 
-	private NetworkGraphAssetType networkGraphAssetType;
+	private NetworkGraphResourceType networkGraphAssetType;
 
 	@Override
 	public void register() {}
@@ -15,7 +15,7 @@ public class Recon extends Module {
 	@Override
 	public void startup() {
 		registerIcon( "recon", new ReconIcon() );
-		registerAssetType( networkGraphAssetType = new NetworkGraphAssetType( this ) );
+		registerAssetType( networkGraphAssetType = new NetworkGraphResourceType( this ) );
 		registerTool( networkGraphAssetType, new ToolRegistration( this, ReconTool.class ) );
 
 		registerAction( this, "runpause" );
