@@ -6,7 +6,7 @@ import com.avereon.xenon.RbKey;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.action.common.RunPauseAction;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -41,8 +41,8 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 
 	//private final EventHandler<NodeEvent> modelChangeHandler;
 
-	public ReconTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public ReconTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 
 		addStylesheet( "recon.css" );
 
@@ -79,7 +79,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getAsset().getName() );
+		setTitle( getResource().getName() );
 		setGraphic( getProgram().getIconLibrary().getIcon( "recon" ) );
 	}
 
@@ -93,7 +93,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	protected void activate() {
 		pushAction( "runpause", runPauseAction );
 		pushTools( "runpause" );
-		if( getAsset().isLoaded() ) runPauseAction.setState( isRunning() ? "pause" : "run" );
+		if( getResource().isLoaded() ) runPauseAction.setState( isRunning() ? "pause" : "run" );
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class ReconTool extends ProgramTool implements RunPauseResettable {
 	}
 
 	private NetworkGraph getGraph() {
-		return getAsset().getModel();
+		return getResource().getModel();
 	}
 
 	private int getLevelCount() {

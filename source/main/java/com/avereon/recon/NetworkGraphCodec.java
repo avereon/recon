@@ -3,7 +3,7 @@ package com.avereon.recon;
 import com.avereon.data.Node;
 import com.avereon.product.Product;
 import com.avereon.product.Rb;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.Codec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -53,7 +53,7 @@ public class NetworkGraphCodec extends Codec {
 	}
 
 	@Override
-	public void load( Asset asset, InputStream input ) throws IOException {
+	public void load( Resource resource, InputStream input ) throws IOException {
 		Map<String, NetworkDevice> devices = new HashMap<>();
 		Map<String, String> parents = new HashMap<>();
 
@@ -93,15 +93,15 @@ public class NetworkGraphCodec extends Codec {
 				}
 			}
 
-			if( root != null ) ((NetworkGraph)asset.getModel()).setRootDevice( root );
+			if( root != null ) ((NetworkGraph)resource.getModel()).setRootDevice( root );
 		} catch( Throwable throwable ) {
 			throw new IOException( "Error loading asset", throwable );
 		}
 	}
 
 	@Override
-	public void save( Asset asset, OutputStream output ) throws IOException {
-		NetworkGraph graph = asset.getModel();
+	public void save( Resource resource, OutputStream output ) throws IOException {
+		NetworkGraph graph = resource.getModel();
 		NetworkDevice root = graph.getRootDevice();
 
 		Set<Map<String, String>> deviceMaps = new HashSet<>();
