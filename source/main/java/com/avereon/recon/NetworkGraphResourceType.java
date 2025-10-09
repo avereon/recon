@@ -2,8 +2,8 @@ package com.avereon.recon;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.ResourceType;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.ResourceType;
 
 public class NetworkGraphResourceType extends ResourceType {
 
